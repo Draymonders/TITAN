@@ -40,7 +40,8 @@ import com.yunji.titan.manager.utils.TicketBuilderUtil;
 import com.yunji.titan.manager.utils.ValidatorUtil;
 import com.yunji.titan.utils.ErrorCode;
 
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.ShardedJedisPool;
 
 /**
  * @desc 登录controller
@@ -65,7 +66,7 @@ public class LoginController {
 	 * jedis
 	 */
 	@Resource
-	private JedisCluster jedisCluster;
+	private JedisPool jedisPool;
 	
 	/**
 	 * @desc 登录
@@ -95,9 +96,9 @@ public class LoginController {
     			String ticket = TicketBuilderUtil.getTicket(userInfoBO.getUsername());
     			//设置ticket到缓存中
     			if(-1 == ticketExpireTime){
-    				jedisCluster.set(TitanConstant.TICKET_PREFIX + ticket,username);
+    				jedisPool.getResource().set(TitanConstant.TICKET_PREFIX + ticket,username);
     			}else{
-    				jedisCluster.setex(TitanConstant.TICKET_PREFIX + ticket,ticketExpireTime, username);
+    				jedisPool.getResource().setex(TitanConstant.TICKET_PREFIX + ticket,ticketExpireTime, username);
     			}
     			//3、返回登录成功
     			componentResult.setData(new LoginResultBO(ticket));
@@ -124,7 +125,7 @@ public class LoginController {
 		try {
 			String ticket = CookieUtil.getCookieValueByName(request,TitanConstant.TICKET_PREFIX);
 			if(StringUtils.isNotBlank(ticket)){
-				jedisCluster.del(TitanConstant.TICKET_PREFIX + ticket);
+				jedisPool.getResource().del(TitanConstant.TICKET_PREFIX + ticket);
 				return ResultUtil.success(result);
 			}else {
 				logger.error("ticket为空,ticket:{}",ticket);

@@ -33,7 +33,7 @@ import org.springframework.web.servlet.ModelAndView;
 import com.yunji.titan.manager.common.TitanConstant;
 import com.yunji.titan.manager.utils.CookieUtil;
 
-import redis.clients.jedis.JedisCluster;
+import redis.clients.jedis.JedisPool;
 
 /**
  * @desc 登录拦截器
@@ -53,7 +53,7 @@ public class LoginInterceptor implements HandlerInterceptor{
      * jedis
      */
     @Resource
-	private JedisCluster jedisCluster;
+	private JedisPool jedisPool;
 	
 	@Override
 	public void afterCompletion(HttpServletRequest arg0,HttpServletResponse arg1, Object arg2, Exception arg3) throws Exception {
@@ -75,7 +75,7 @@ public class LoginInterceptor implements HandlerInterceptor{
 			return true;
 		}else{
 			 //3、验证ticket
-			String ticketInRedis = jedisCluster.get(TitanConstant.TICKET_PREFIX + ticket);
+			String ticketInRedis = jedisPool.getResource().get(TitanConstant.TICKET_PREFIX + ticket);
 			if(StringUtils.isBlank(ticket) || StringUtils.isBlank(ticketInRedis)) {
 				logger.warn("登录拦截,requestUrl:{},ticket:{},ticketInRedis:{}",requestUrl,ticket,ticketInRedis);
 				PrintWriter out = response.getWriter();  
