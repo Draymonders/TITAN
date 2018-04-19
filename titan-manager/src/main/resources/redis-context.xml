@@ -16,16 +16,7 @@
 		<property name="testOnBorrow" value="${redis.pool.testOnBorrow}" />
 		<property name="testOnReturn" value="${redis.pool.testOnReturn}" />
 	</bean>
-	
-	
-		<bean id="jedisPool" class="redis.clients.jedis.JedisPool" scope="singleton">
-            <!-- <constructor-arg index="0" ref="jedisPoolConfig"/>  -->
-          	<constructor-arg index="0" value="${redis.host}" type="java.lang.String"/>  
-          	<constructor-arg index="1" value="${redis.port}"  type="int"/>   
-        </bean>
-	
-	
-<!-- 	dataSource <bean id="jedisCluster" class="redis.clients.jedis.Jedis">
+	<bean id="jedisCluster" class="redis.clients.jedis.JedisCluster">
 		<constructor-arg index="0">
 			<list>
 				<bean class="redis.clients.jedis.HostAndPort">
@@ -35,6 +26,6 @@
 			</list>
 		</constructor-arg>
 		<constructor-arg index="1" ref="jedisPoolConfig" />
-	</bean> -->
+	</bean>
 
 </beans>
