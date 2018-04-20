@@ -78,7 +78,7 @@ public class MonitorDao {
 	 * @return List<String> IP集合
 	 */
 	public List<String> queryIPList(int serverType,int size) {
-		String sql = "SELECT ip FROM(SELECT * FROM t_monitor WHERE server_type = ? ORDER BY create_time DESC) b GROUP BY ip ORDER BY create_time DESC LIMIT ?";
+		String sql = "SELECT ip FROM(SELECT * FROM t_monitor WHERE server_type = ? ORDER BY create_time DESC) b GROUP BY ip, create_time ORDER BY create_time DESC LIMIT ?";
 		return jdbcTemplate.queryForList(sql,new Object[]{serverType,size},String.class);
 	}
 

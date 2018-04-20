@@ -109,10 +109,10 @@ public interface Stresstest {
 			outParamBO.setErrorCode(httpCode);
 			try {
 				JSONObject obj = JSONObject.parseObject(EntityUtils.toString(entity, CHAR_SET));
-				Object errorCode = obj.get("errorCode");
+				Object resultCode = obj.get("resultCode");
 				Object data = obj.get("data");
-				if (null != errorCode) {
-					outParamBO.setErrorCode(Integer.parseInt(errorCode.toString()));
+				if (null != resultCode) {
+					outParamBO.setErrorCode(Integer.parseInt(resultCode.toString()));
 				}
 				if (null != data) {
 					outParamBO.setData(data.toString());
