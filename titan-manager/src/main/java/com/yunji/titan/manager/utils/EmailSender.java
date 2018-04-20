@@ -57,7 +57,7 @@ public class EmailSender {
 	/**
 	 * host
 	 */
-	private final static String MAIL_SMTP_HOST = "smtp.sina.com";
+	private final static String MAIL_SMTP_HOST = "smtp.163.com";
 	/**
 	 * port
 	 */
