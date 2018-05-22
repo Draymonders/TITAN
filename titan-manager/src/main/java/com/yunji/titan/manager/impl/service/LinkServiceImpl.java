@@ -32,6 +32,7 @@ import com.yunji.titan.manager.bo.LinkBO;
 import com.yunji.titan.manager.dao.LinkDao;
 import com.yunji.titan.manager.dao.SceneDao;
 import com.yunji.titan.manager.entity.Link;
+import com.yunji.titan.manager.entity.LinkVariable;
 import com.yunji.titan.manager.entity.Scene;
 import com.yunji.titan.manager.service.LinkService;
 
@@ -181,6 +182,19 @@ public class LinkServiceImpl implements LinkService{
 	@Override
 	public List<Link> getLinkListByIds(String ids) throws Exception{
 		return linkDao.getLinkListByIds(ids);
+	}
+
+	/**
+	 * @desc 根据链路ID查询链路变量定义列表
+	 *
+	 * @author liuliang
+	 *
+	 * @param ids 链路ID (多个ID以英文","隔开)
+	 * @return List<Link> 链路实体集合
+	 */
+	@Override
+	public List<LinkVariable> getLinkVariableListByIds(String ids) throws Exception{
+		return linkDao.getLinkVariableByIds(ids);
 	}
 
 	/**

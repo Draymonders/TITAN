@@ -35,6 +35,7 @@ import com.yunji.titan.manager.common.CharsetTypeEnum;
 import com.yunji.titan.manager.common.ContentTypeEnum;
 import com.yunji.titan.manager.common.SceneStatusEnum;
 import com.yunji.titan.manager.entity.Link;
+import com.yunji.titan.manager.entity.LinkVariable;
 import com.yunji.titan.manager.entity.Scene;
 import com.yunji.titan.manager.service.LinkService;
 import com.yunji.titan.manager.service.OperateService;
@@ -119,6 +120,19 @@ public class OperateServiceImpl implements OperateService {
 			}
 			urls.add(link.getStresstestUrl());
 		}
+		// 4、查询链路变量定义信息
+		List<LinkVariable> linkVarList = linkService.getLinkVariableListByIds(ids);
+		Map<String, List<String>> vars = new HashMap(16);
+		for (LinkVariable var : linkVarList) {
+			List<String> list=vars.get(var.getStresstestUrl());
+			if(list==null){
+				list=new ArrayList();
+				list.add(var.getVarName()+","+var.getVarExpression());
+				vars.put(var.getStresstestUrl(), list);
+			}else{
+				list.add(var.getVarName()+","+var.getVarExpression());
+			}
+		}
 		// 计算持续时间
 		int continuedTime = hour * 60 * 60 + min * 60 + sec;
 		TimeUnit timeUnit = null;
@@ -144,6 +158,7 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setParams(params);
 		actionPerformanceBO.setContentTypes(contentTypes);
 		actionPerformanceBO.setCharsets(charsets);
+		actionPerformanceBO.setVariables(vars);
 
 		return actionPerformanceBO;
 	}
@@ -211,6 +226,7 @@ public class OperateServiceImpl implements OperateService {
 		tb.setContentTypes(ap.getContentTypes());
 		
 		tb.setCharsets(ap.getCharsets());
+		tb.setVariables(ap.getVariables());
 		tb.setTimeUnit(ap.getTimeUnit());
 	}
 	

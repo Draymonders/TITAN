@@ -45,6 +45,7 @@ public class AgentTaskBean {
 	private Map<String, List<String>> params = new ConcurrentHashMap<>();
 	private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
 	private Map<String, String> charsets = new ConcurrentHashMap<>();
+	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
 
 	public Map<String, ContentType> getContentTypes() {
 		return contentTypes;
@@ -173,4 +174,13 @@ public class AgentTaskBean {
 	public void setParams(Map<String, List<String>> params) {
 		this.params = params;
 	}
+
+	public Map<String, List<String>> getVariables() {
+		return variables;
+	}
+
+	public void setVariables(Map<String, List<String>> variables) {
+		this.variables = variables;
+	}
+	
 }

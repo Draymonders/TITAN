@@ -16,6 +16,8 @@
  */
 package com.yunji.titan.agent.stresstest;
 
+import java.util.Map;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.util.EntityUtils;
@@ -59,7 +61,7 @@ public interface Stresstest {
 	 * 
 	 * @return OutParamBO 压测结果,返回业务code为0时则成功
 	 */
-	public OutParamBO runStresstest(String url, String outParam, String param, ContentType contentType, String charset);
+	public OutParamBO runStresstest(String url, String outParam, String param, ContentType contentType, String charset,Map<String,String> varValues);
 
 	/**
 	 * 获取执行结果

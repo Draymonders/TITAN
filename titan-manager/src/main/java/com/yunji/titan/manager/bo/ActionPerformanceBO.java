@@ -95,6 +95,10 @@ public class ActionPerformanceBO implements Serializable {
 	 * 编码格式
 	 */
 	private Map<String, String> charsets;
+	/**
+	 * 变量定义
+	 */
+	private Map<String, List<String>> variables;
 
 	public Long getSceneId() {
 		return sceneId;
@@ -214,6 +218,14 @@ public class ActionPerformanceBO implements Serializable {
 
 	public void setCharsets(Map<String, String> charsets) {
 		this.charsets = charsets;
+	}
+
+	public Map<String, List<String>> getVariables() {
+		return variables;
+	}
+
+	public void setVariables(Map<String, List<String>> variables) {
+		this.variables = variables;
 	}
 
 	@Override

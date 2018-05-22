@@ -18,7 +18,10 @@ package com.yunji.titan.agent.stresstest;
 
 import java.io.IOException;
 import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.annotation.Resource;
+
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
@@ -27,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
 import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.config.HttpConnectionManager;
 import com.yunji.titan.agent.interpreter.param.AbstractExpression;
@@ -53,18 +57,25 @@ public class HttpGetRequestStresstest implements Stresstest {
 
 	@Override
 	public OutParamBO runStresstest(String url, String outParam, String param, ContentType contentType,
-			String charset) {
+			String charset,Map<String,String> varValues) {
 		OutParamBO outParamBO = new OutParamBO();
 		if (!StringUtils.isEmpty(url)) {
 			HttpEntity entity = null;
 			CloseableHttpClient httpClient = null;
 			CloseableHttpResponse httpResponse = null;
+
+			//替换参数中的变量取值,eg:'token':'${jwt}'，其中jwt为定义的变量名
+			for(Entry<String, String> entry:varValues.entrySet()){
+				String regex = "\\$\\{"+entry.getKey()+"}";
+				param.replaceAll(regex, entry.getValue());
+			}
+			
 			/* 解析参数 */
 			ParamContext context = new ParamContext();
 			context.setParams(param);
 			param = paramExpression.get(context);
 			String header = headerExpression.get(context);
-			/* 将上一个接口的出参作为下一个接口的指定入参 */
+			/* 将上一个接口的出参作为下一个接口的入参拼接  格式=?xxx&xxx&，原有的入参，拼接json的每个key/value*/
 			if (!StringUtils.isEmpty(outParam)) {
 				log.debug("BEFORE" + param);
 				param = PropertyResolver.resolver(param, outParam, RequestType.GET);

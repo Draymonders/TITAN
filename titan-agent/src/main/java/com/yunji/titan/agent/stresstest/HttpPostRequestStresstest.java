@@ -21,6 +21,9 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import javax.annotation.Resource;
 import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
@@ -61,11 +64,16 @@ public class HttpPostRequestStresstest implements Stresstest {
 
 	@Override
 	public OutParamBO runStresstest(String url, String outParam, String param, ContentType contentType,
-			String charset) {
+			String charset,Map<String,String> varValues) {
 		OutParamBO outParamBO = new OutParamBO();
 		if (!StringUtils.isEmpty(url)) {
 			HttpEntity entity = null;
 			CloseableHttpResponse httpResponse = null;
+			//替换参数中的变量取值,eg:'token':'${jwt}'，其中jwt为定义的变量名
+			for(Entry<String, String> entry:varValues.entrySet()){
+				String regex = "\\$\\{"+entry.getKey()+"}";
+				param.replaceAll(regex, entry.getValue());
+			}
 			/* 解析参数 */
 			ParamContext context = new ParamContext();
 			context.setParams(param);

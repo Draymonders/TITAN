@@ -25,7 +25,9 @@ import org.springframework.stereotype.Repository;
 
 import com.yunji.titan.manager.bo.LinkBO;
 import com.yunji.titan.manager.entity.Link;
+import com.yunji.titan.manager.entity.LinkVariable;
 import com.yunji.titan.manager.entity.mapper.LinkMapper;
+import com.yunji.titan.manager.entity.mapper.LinkVariableMapper;
 
 /**
  * @desc 链路表Dao
@@ -41,6 +43,8 @@ public class LinkDao {
     
     @Resource
 	private LinkMapper linkMapper;
+    @Resource
+	private LinkVariableMapper linkVariableMapper;
     
     /**
      * @desc 查询链路总数量
@@ -174,6 +178,20 @@ public class LinkDao {
 	public List<Link> getLinkListByIds(String ids) throws Exception{
 		final String sql = "SELECT * FROM t_link WHERE link_id IN (" + ids + ")";
         return jdbcTemplate.query(sql,linkMapper);
+	}
+
+	/**
+	 * @desc 根据链路ID查询链路变量定义列表
+	 *
+	 * @author liuliang
+	 *
+	 * @param ids 链路ID (多个ID以英文","隔开)
+	 * @return List<Link> 链路实体集合
+	 * @throws Exception
+	 */
+	public List<LinkVariable> getLinkVariableByIds(String ids) throws Exception{
+		final String sql = "SELECT * FROM t_link_Variable WHERE link_id IN (" + ids + ")";
+        return jdbcTemplate.query(sql,linkVariableMapper);
 	}
 
 }

@@ -46,6 +46,7 @@ public class TaskIssuedBean implements Serializable{
 	private Map<String, File> params = new ConcurrentHashMap<>();
 	private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
 	private Map<String, String> charsets = new ConcurrentHashMap<>();
+	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
 	private TimeUnit timeUnit;
 
 	public String getTaskId() {
@@ -182,6 +183,14 @@ public class TaskIssuedBean implements Serializable{
 
 	public void setTimeUnit(TimeUnit timeUnit) {
 		this.timeUnit = timeUnit;
+	}
+
+	public Map<String, List<String>> getVariables() {
+		return variables;
+	}
+
+	public void setVariables(Map<String, List<String>> variables) {
+		this.variables = variables;
 	}
 
 	@Override

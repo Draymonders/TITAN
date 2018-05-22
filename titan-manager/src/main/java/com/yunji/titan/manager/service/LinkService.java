@@ -20,6 +20,7 @@ import java.util.List;
 
 import com.yunji.titan.manager.bo.LinkBO;
 import com.yunji.titan.manager.entity.Link;
+import com.yunji.titan.manager.entity.LinkVariable;
 
 /**
  * 链路表Service接口
@@ -117,6 +118,17 @@ public interface LinkService {
 	 * @throws Exception
 	 */
 	List<Link> getLinkListByIds(String ids) throws Exception;
+
+	/**
+	 * 根据链路ID查询链路变量定义列表
+	 * 
+	 * @author liuliang
+	 *
+	 * @param ids ids 链路ID (多个ID以英文","隔开)
+	 * @return
+	 * @throws Exception
+	 */
+	List<LinkVariable> getLinkVariableListByIds(String ids) throws Exception;
 
 	/**
 	 * 删除链路并更新链路相关的场景

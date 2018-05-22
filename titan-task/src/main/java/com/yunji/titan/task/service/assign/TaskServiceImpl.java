@@ -140,7 +140,7 @@ public class TaskServiceImpl implements TaskService {
 		/* 开始任务编排 */
 		Map<String, AgentTaskBean> taskMap = missionSchedule(freeAgents, taskIssuedBean.getAgentSize(),
 				taskIssuedBean.getUrls(), downLoadFiles(taskIssuedBean.getParams()), taskIssuedBean.getRequestTypes(),
-				taskIssuedBean.getProtocolTypes(), taskIssuedBean.getContentTypes(), taskIssuedBean.getCharsets());
+				taskIssuedBean.getProtocolTypes(), taskIssuedBean.getContentTypes(), taskIssuedBean.getCharsets(),taskIssuedBean.getVariables());
 		/* 为每一个场景的压测任务分配一个唯一的任务ID */
 		String taskId = UUID.randomUUID().toString();
 		/* 通过并行流方式加速任务下发,加速压测预热过程 */
@@ -282,7 +282,7 @@ public class TaskServiceImpl implements TaskService {
 	private Map<String, AgentTaskBean> missionSchedule(List<String> znodes, int agentSize, List<String> urls,
 			Map<String, List<String>> params, Map<String, RequestType> requestTypes,
 			Map<String, ProtocolType> protocolTypes, Map<String, ContentType> contentTypes,
-			Map<String, String> charsets) {
+			Map<String, String> charsets,Map<String, List<String>> variables) {
 		Map<String, AgentTaskBean> taskMap = new ConcurrentHashMap<String, AgentTaskBean>(16);
 		/* 定义目标agent分配动态参数的开始索引 */
 		Map<String, Integer> startIndex = new ConcurrentHashMap<String, Integer>(16);
@@ -323,6 +323,7 @@ public class TaskServiceImpl implements TaskService {
 				taskBean.getProtocolTypes().put(url, protocolTypes.get(url));
 				taskBean.getContentTypes().put(url, contentTypes.get(url));
 				taskBean.getCharsets().put(url, charsets.get(url));
+				taskBean.getVariables().put(url, variables.get(url));
 			});
 			taskMap.put(znodes.get(i), taskBean);
 		}

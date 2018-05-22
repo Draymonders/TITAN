@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.state.AgentStateContext;
 import com.yunji.titan.agent.state.FreeState;
@@ -96,6 +98,7 @@ public class RequestHandler {
 		final long taskSize = taskBean.getTaskSize();
 		final Map<String, ContentType> contentTypes = taskBean.getContentTypes();
 		final Map<String, String> charsets = taskBean.getCharsets();
+		final Map<String, List<String>> variables = taskBean.getVariables();
 		final Map<String, RequestType> requestTypes = taskBean.getRequestTypes();
 		final CountDownLatch latch = new CountDownLatch(concurrentUsersSize);
 		final Map<String, Integer> paramIndex = new HashMap<String, Integer>(16);
@@ -137,14 +140,14 @@ public class RequestHandler {
 		if (0 < initConcurrentUsersSize) {
 			/* 准备开始预热 */
 			runStresstest(initConcurrentUsersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets);
+					serviceSuccessNum, latch, contentTypes, charsets,variables);
 			log.info("起步量级的预热任务(起步量级-->" + initConcurrentUsersSize + ",每个并发用户分配的任务数-->" + taskSize
 					+ ")已经完成,开始准备过渡到正常流量");
 		}
 		final int remConcurrentusersSize = concurrentUsersSize - initConcurrentUsersSize;
 		if (remConcurrentusersSize > 0) {
 			runStresstest(remConcurrentusersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets);
+					serviceSuccessNum, latch, contentTypes, charsets,variables);
 		}
 		try {
 			latch.await();
@@ -176,7 +179,7 @@ public class RequestHandler {
 			final Map<String, RequestType> requestTypes, final AgentTaskBean taskBean,
 			final Map<String, Integer> paramIndex, final AtomicInteger httpSuccessNum,
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
-			final Map<String, ContentType> contentTypes, final Map<String, String> charsets) {
+			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables) {
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();
@@ -189,6 +192,7 @@ public class RequestHandler {
 					}
 					/* 全链路压测时上一个接口的出参 */
 					String outParam = null;
+					Map<String,String> varValue=null;
 					boolean result = true;
 					for (String url : urls) {
 						Stresstest stresstest = null;
@@ -213,7 +217,7 @@ public class RequestHandler {
 							break;
 						}
 						outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
-								charsets.get(url));
+								charsets.get(url),varValue);
 						code = outParamBO.getErrorCode();
 						/* 返回业务码不为${code}则失败 */
 						if (Integer.parseInt(this.code) != code) {
@@ -221,6 +225,8 @@ public class RequestHandler {
 							break;
 						}
 						outParam = outParamBO.getData();
+						varValue=this.getVariableValue(variables, url, outParam);
+						//这里解析${}出参，放于上下文
 					}
 					/* 检测一次链路的压测结果 */
 					if (result) {
@@ -234,7 +240,33 @@ public class RequestHandler {
 			});
 		}
 	}
-
+	/**
+	 * 解析返回数据，给链路定义的变量赋值
+	 * @param variables
+	 * @param url
+	 * @param outParam
+	 * @return
+	 */
+   private Map<String,String> getVariableValue(Map<String, List<String>> variables,String url,String outParam){
+		List<String> vars=variables.get(url);
+		Map<String,String> map=new HashMap();
+		for(String var:vars){
+			String[] v=var.split(",");
+			String varName=v[0];
+			String varExpression=v[1];
+			Object param=outParam;
+			String[] keys=varExpression.split("\\.");
+			for(int i=0;i<keys.length;i++){
+				   JSONObject j=JSONObject.parseObject((String)param);
+				   param=j.get(keys[i]);
+				   if(param instanceof JSONObject){
+					   param=((JSONObject)param).toString();
+				   }
+			}
+			map.put(varName, (String)param);
+		}
+		return map;
+   }
 	/**
 	 * 获取压测参数索引
 	 * 
