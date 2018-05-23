@@ -18,6 +18,7 @@ package com.yunji.titan.utils;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -187,6 +188,9 @@ public class TaskIssuedBean implements Serializable{
 	}
 
 	public Map<String, List<String>> getVariables() {
+		if(variables==null){
+			variables=new HashMap();
+		}
 		return variables;
 	}
 
