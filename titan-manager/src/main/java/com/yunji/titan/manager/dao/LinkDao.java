@@ -190,7 +190,7 @@ public class LinkDao {
 	 * @throws Exception
 	 */
 	public List<LinkVariable> getLinkVariableByIds(String ids) throws Exception{
-		final String sql = "SELECT * FROM t_link_Variable WHERE link_id IN (" + ids + ")";
+		final String sql = "SELECT * FROM t_link_variable WHERE link_id IN (" + ids + ")";
         return jdbcTemplate.query(sql,linkVariableMapper);
 	}
 

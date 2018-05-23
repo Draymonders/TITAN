@@ -324,8 +324,8 @@ public class TaskServiceImpl implements TaskService {
 				taskBean.getProtocolTypes().put(url, protocolTypes.get(url));
 				taskBean.getContentTypes().put(url, contentTypes.get(url));
 				taskBean.getCharsets().put(url, charsets.get(url));
-				taskBean.getVariables().put(url, variables.get(url));
-				taskBean.getSuccessExpression().put(url, successExpression.get(url));
+				taskBean.getVariables().put(url, (variables==null||variables.get(url)==null)?new ArrayList<String>():variables.get(url));
+				taskBean.getSuccessExpression().put(url, successExpression.get(url)==null?"":successExpression.get(url));
 			});
 			taskMap.put(znodes.get(i), taskBean);
 		}

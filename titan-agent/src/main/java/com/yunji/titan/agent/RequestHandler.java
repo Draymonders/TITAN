@@ -197,7 +197,7 @@ public class RequestHandler {
 					}
 					/* 全链路压测时上一个接口的出参 */
 					String outParam = null;
-					Map<String,String> varValue=null;
+					Map<String,String> varValue=new HashMap<String,String>();
 					boolean result = true;
 					for (String url : urls) {
 						Stresstest stresstest = null;
@@ -225,7 +225,7 @@ public class RequestHandler {
 								charsets.get(url),varValue);
 						code = outParamBO.getErrorCode();
 						String expression=successExpression.get(url);
-						if(expression!=null){
+						if(StringUtils.isEmpty(expression)){
 							Pattern pattern = Pattern.compile(expression);
 							Matcher matcher = pattern.matcher(outParamBO.getData());
 							if(!matcher.matches())
@@ -325,6 +325,18 @@ public class RequestHandler {
 				} catch (InterruptedException e) {
 					log.error("error", e);
 				}
+			}
+		}
+	}
+	public static void main(String[] args) {
+//		String expression=".*{5,}(\"total\").*{1,}";
+		String expression="^.*\"total\".*$";
+		if(expression!=null){
+			Pattern pattern = Pattern.compile(expression);
+			Matcher matcher = pattern.matcher("{\"total1\":446,\"rows\":[");
+			if(!matcher.matches())
+			{
+				System.out.println("no");
 			}
 		}
 	}
