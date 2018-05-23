@@ -105,6 +105,7 @@ public class OperateServiceImpl implements OperateService {
 		Map<String, RequestType> requestTypes = new HashMap<String, RequestType>(16);
 		Map<String, ContentType> contentTypes = new HashMap<String, ContentType>(16);
 		Map<String, String> charsets = new HashMap<String, String>(16);
+		Map<String, String> successExpression = new HashMap<String, String>(16);
 		Map<String, File> params = new HashMap<String, File>(16);
 		List<String> urls = new ArrayList<String>();
 		for (Link link : linkList) {
@@ -112,6 +113,7 @@ public class OperateServiceImpl implements OperateService {
 			requestTypes.put(link.getStresstestUrl(), CommonTypeUtil.getRequestType(link.getRequestType()));
 			contentTypes.put(link.getStresstestUrl(), ContentTypeEnum.getContentType(link.getContentType()));
 			charsets.put(link.getStresstestUrl(), CharsetTypeEnum.getValue(link.getCharsetType()));
+			successExpression.put(link.getStresstestUrl(), link.getSuccessExpression());
 			
 			if (StringUtils.isBlank(link.getTestfilePath())) {
 				params.put(link.getStresstestUrl(), null);
@@ -159,6 +161,7 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setContentTypes(contentTypes);
 		actionPerformanceBO.setCharsets(charsets);
 		actionPerformanceBO.setVariables(vars);
+		actionPerformanceBO.setSuccessExpression(successExpression);
 
 		return actionPerformanceBO;
 	}
@@ -227,6 +230,7 @@ public class OperateServiceImpl implements OperateService {
 		
 		tb.setCharsets(ap.getCharsets());
 		tb.setVariables(ap.getVariables());
+		tb.setSuccessExpression(ap.getSuccessExpression());
 		tb.setTimeUnit(ap.getTimeUnit());
 	}
 	

@@ -25,6 +25,9 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import javax.annotation.Resource;
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
@@ -99,6 +102,7 @@ public class RequestHandler {
 		final Map<String, ContentType> contentTypes = taskBean.getContentTypes();
 		final Map<String, String> charsets = taskBean.getCharsets();
 		final Map<String, List<String>> variables = taskBean.getVariables();
+		final Map<String, String> successExpression = taskBean.getSuccessExpression();
 		final Map<String, RequestType> requestTypes = taskBean.getRequestTypes();
 		final CountDownLatch latch = new CountDownLatch(concurrentUsersSize);
 		final Map<String, Integer> paramIndex = new HashMap<String, Integer>(16);
@@ -140,14 +144,14 @@ public class RequestHandler {
 		if (0 < initConcurrentUsersSize) {
 			/* 准备开始预热 */
 			runStresstest(initConcurrentUsersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables);
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression);
 			log.info("起步量级的预热任务(起步量级-->" + initConcurrentUsersSize + ",每个并发用户分配的任务数-->" + taskSize
 					+ ")已经完成,开始准备过渡到正常流量");
 		}
 		final int remConcurrentusersSize = concurrentUsersSize - initConcurrentUsersSize;
 		if (remConcurrentusersSize > 0) {
 			runStresstest(remConcurrentusersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables);
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression);
 		}
 		try {
 			latch.await();
@@ -179,7 +183,8 @@ public class RequestHandler {
 			final Map<String, RequestType> requestTypes, final AgentTaskBean taskBean,
 			final Map<String, Integer> paramIndex, final AtomicInteger httpSuccessNum,
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
-			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables) {
+			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables,
+			final Map<String, String> successExpression) {
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();
@@ -219,8 +224,17 @@ public class RequestHandler {
 						outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
 								charsets.get(url),varValue);
 						code = outParamBO.getErrorCode();
-						/* 返回业务码不为${code}则失败 */
-						if (Integer.parseInt(this.code) != code) {
+						String expression=successExpression.get(url);
+						if(expression!=null){
+							Pattern pattern = Pattern.compile(expression);
+							Matcher matcher = pattern.matcher(outParamBO.getData());
+							if(!matcher.matches())
+							{
+								result = false;
+								break;
+							}
+						}else if (Integer.parseInt(this.code) != code) {
+							/* 返回业务码不为${code}则失败 */
 							result = false;
 							break;
 						}

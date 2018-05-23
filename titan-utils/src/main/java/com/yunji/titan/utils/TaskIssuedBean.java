@@ -47,6 +47,7 @@ public class TaskIssuedBean implements Serializable{
 	private Map<String, ContentType> contentTypes = new ConcurrentHashMap<>();
 	private Map<String, String> charsets = new ConcurrentHashMap<>();
 	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
+	private Map<String, String> successExpression = new ConcurrentHashMap<>();
 	private TimeUnit timeUnit;
 
 	public String getTaskId() {
@@ -191,6 +192,14 @@ public class TaskIssuedBean implements Serializable{
 
 	public void setVariables(Map<String, List<String>> variables) {
 		this.variables = variables;
+	}
+
+	public Map<String, String> getSuccessExpression() {
+		return successExpression;
+	}
+
+	public void setSuccessExpression(Map<String, String> successExpression) {
+		this.successExpression = successExpression;
 	}
 
 	@Override

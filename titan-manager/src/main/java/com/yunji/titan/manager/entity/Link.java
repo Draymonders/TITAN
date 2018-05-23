@@ -63,6 +63,10 @@ public class Link {
 	 * 记录最后修改时间
 	 */
 	private Long modifyTime;
+	/**
+	 * 判断链路是否成功的正则表达式
+	 */
+	private String successExpression;
 	public Long getLinkId() {
 		return linkId;
 	}
@@ -122,6 +126,12 @@ public class Link {
 	}
 	public void setModifyTime(Long modifyTime) {
 		this.modifyTime = modifyTime;
+	}
+	public String getSuccessExpression() {
+		return successExpression;
+	}
+	public void setSuccessExpression(String successExpression) {
+		this.successExpression = successExpression;
 	}
 	
 }

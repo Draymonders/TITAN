@@ -47,6 +47,7 @@ public class LinkMapper implements RowMapper<Link>{
 		link.setTestfilePath(rs.getString("testfile_path"));
 		link.setCreateTime(rs.getLong("create_time"));
 		link.setModifyTime(rs.getLong("modify_time"));
+		link.setSuccessExpression(rs.getString("success_expression"));
 		return link;
 	}
 

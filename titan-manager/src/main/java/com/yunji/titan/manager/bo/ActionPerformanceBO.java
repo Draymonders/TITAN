@@ -18,6 +18,7 @@ package com.yunji.titan.manager.bo;
 
 import java.io.File;
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -96,10 +97,14 @@ public class ActionPerformanceBO implements Serializable {
 	 */
 	private Map<String, String> charsets;
 	/**
-	 * 变量定义
+	 * 链路变量定义
 	 */
 	private Map<String, List<String>> variables;
 
+	/**
+	 * 链路是否成功的正则表达式
+	 */
+	private Map<String, String> successExpression = new HashMap<String, String>(16);
 	public Long getSceneId() {
 		return sceneId;
 	}
@@ -226,6 +231,14 @@ public class ActionPerformanceBO implements Serializable {
 
 	public void setVariables(Map<String, List<String>> variables) {
 		this.variables = variables;
+	}
+
+	public Map<String, String> getSuccessExpression() {
+		return successExpression;
+	}
+
+	public void setSuccessExpression(Map<String, String> successExpression) {
+		this.successExpression = successExpression;
 	}
 
 	@Override
