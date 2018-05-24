@@ -225,7 +225,7 @@ public class RequestHandler {
 								charsets.get(url),varValue);
 						code = outParamBO.getErrorCode();
 						String expression=successExpression.get(url);
-						if(StringUtils.isEmpty(expression)){
+						if(!StringUtils.isEmpty(expression)){
 							Pattern pattern = Pattern.compile(expression);
 							Matcher matcher = pattern.matcher(outParamBO.getData());
 							if(!matcher.matches())
@@ -264,6 +264,9 @@ public class RequestHandler {
    private Map<String,String> getVariableValue(Map<String, List<String>> variables,String url,String outParam){
 		List<String> vars=variables.get(url);
 		Map<String,String> map=new HashMap();
+		if(outParam==null){
+			return null;
+		}
 		for(String var:vars){
 			String[] v=var.split(",");
 			String varName=v[0];

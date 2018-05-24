@@ -319,7 +319,7 @@ public class TaskServiceImpl implements TaskService {
 						}
 					}
 				}
-				taskBean.getUrls().add(url);
+//				taskBean.getUrls().add(url);
 				taskBean.getRequestTypes().put(url, requestTypes.get(url));
 				taskBean.getProtocolTypes().put(url, protocolTypes.get(url));
 				taskBean.getContentTypes().put(url, contentTypes.get(url));
@@ -327,6 +327,7 @@ public class TaskServiceImpl implements TaskService {
 				taskBean.getVariables().put(url, (variables==null||variables.get(url)==null)?new ArrayList<String>():variables.get(url));
 				taskBean.getSuccessExpression().put(url, successExpression.get(url)==null?"":successExpression.get(url));
 			});
+			taskBean.setUrls(urls);
 			taskMap.put(znodes.get(i), taskBean);
 		}
 		return taskMap;

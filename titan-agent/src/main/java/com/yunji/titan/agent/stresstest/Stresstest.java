@@ -84,7 +84,7 @@ public interface Stresstest {
 			try {
 				JSONObject obj = JSONObject.parseObject(EntityUtils.toString(entity, CHAR_SET));
 				Object resultCode = obj.get("resultCode");
-				Object data = obj.get("data");
+				Object data = obj.toJSONString();// obj.get("data");
 				if (null != resultCode) {
 					outParamBO.setErrorCode(Integer.parseInt(resultCode.toString()));
 				}

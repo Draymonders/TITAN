@@ -64,10 +64,12 @@ public class HttpGetRequestStresstest implements Stresstest {
 			CloseableHttpClient httpClient = null;
 			CloseableHttpResponse httpResponse = null;
 
-			//替换参数中的变量取值,eg:'token':'${jwt}'，其中jwt为定义的变量名
-			for(Entry<String, String> entry:varValues.entrySet()){
-				String regex = "\\$\\{"+entry.getKey()+"}";
-				param.replaceAll(regex, entry.getValue());
+			if(varValues!=null){
+				//替换参数中的变量取值,eg:'token':'${jwt}'，其中jwt为定义的变量名
+				for(Entry<String, String> entry:varValues.entrySet()){
+					String regex = "\\$\\{"+entry.getKey()+"}";
+					param=param.replaceAll(regex, entry.getValue());
+				}
 			}
 			
 			/* 解析参数 */
