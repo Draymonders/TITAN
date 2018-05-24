@@ -200,6 +200,7 @@ public class RequestHandler {
 					Map<String,String> varValue=new HashMap<String,String>();
 					boolean result = true;
 					for (String url : urls) {
+						this.log.info("--开始请求url="+url);
 						Stresstest stresstest = null;
 						String inParam = null;
 						OutParamBO outParamBO = null;
