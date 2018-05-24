@@ -30,6 +30,12 @@
 				      </div>
 				  </div>
 				  <div class="layui-form-item">
+				    <label class="layui-form-label"><font style="color: red;">*</font>&nbsp;业务正则：</label>
+				      <div class="layui-input-block">
+				        <input type="text" name="success_expression" lay-verify="required|success_expression" placeholder="请输入表达式" autocomplete="on" class="layui-input" >
+				      </div>
+				  </div>
+				  <div class="layui-form-item">
 				    <label class="layui-form-label">请求类型：</label>
 				    <div class="layui-input-block">
 				    	<select name="request_type">
@@ -132,6 +138,7 @@ function linkAddPage(){
 		    		$("#linkAddPage input[name='link_name']").val(params.linkName);
 		    		$("#linkAddPage select[name='protocol_type']").val(params.protocolType);
 		    		$("#linkAddPage input[name='stresstest_url']").val(params.stresstestUrl);
+		    		$("#linkAddPage input[name='success_expression']").val(params.successExpression);
 		    		$("#linkAddPage select[name='request_type']").val(params.requestType);
 		    		$("#linkAddPage select[name='content_type']").val(params.contentType);
 		    		$("#linkAddPage select[name='charset_type']").val(params.charsetType);
@@ -161,6 +168,7 @@ function linkAddPage(){
 				        linkName:formParam.link_name,
 				        protocolType:parseInt(formParam.protocol_type),
 				        stresstestUrl:formParam.stresstest_url,
+				        successExpression:formParam.success_expression,
 				        requestType:parseInt(formParam.request_type),
 				        contentType:parseInt(formParam.content_type),
 				        charsetType:parseInt(formParam.charset_type),

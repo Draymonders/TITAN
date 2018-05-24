@@ -115,8 +115,8 @@ public class LinkDao {
 	 * @throws Exception
 	 */
 	public int addLink(LinkBO linkBO) throws Exception{
-		String sql = "INSERT INTO t_link(link_name,protocol_type,stresstest_url,request_type,content_type,charset_type,testfile_path,create_time,modify_time) VALUES(?,?,?,?,?,?,?,?,?)";
-		return jdbcTemplate.update(sql,new Object[]{linkBO.getLinkName(),linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),System.currentTimeMillis()});
+		String sql = "INSERT INTO t_link(link_name,protocol_type,stresstest_url,request_type,content_type,charset_type,testfile_path,create_time,modify_time,success_expression) VALUES(?,?,?,?,?,?,?,?,?,?)";
+		return jdbcTemplate.update(sql,new Object[]{linkBO.getLinkName(),linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),System.currentTimeMillis(),linkBO.getSuccessExpression()});
 	}
 
 	/**
@@ -129,8 +129,8 @@ public class LinkDao {
 	 * @throws Exception
 	 */
 	public int updateLink(LinkBO linkBO) throws Exception{
-		String sql = "UPDATE t_link SET protocol_type = ?,stresstest_url = ?,request_type = ?,content_type = ?,charset_type = ?,testfile_path = ?,modify_time = ? WHERE link_id = ?";
-		return jdbcTemplate.update(sql,new Object[]{linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),linkBO.getLinkId()});
+		String sql = "UPDATE t_link SET protocol_type = ?,stresstest_url = ?,request_type = ?,content_type = ?,charset_type = ?,testfile_path = ?,modify_time = ?,success_expression = ? WHERE link_id = ?";
+		return jdbcTemplate.update(sql,new Object[]{linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),linkBO.getSuccessExpression(),linkBO.getLinkId()});
 	}
 
 	/**
