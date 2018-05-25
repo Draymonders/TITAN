@@ -32,7 +32,19 @@
 				  <div class="layui-form-item">
 				    <label class="layui-form-label"><font style="color: red;">*</font>&nbsp;业务正则：</label>
 				      <div class="layui-input-block">
-				        <input type="text" name="success_expression" lay-verify="required|success_expression" placeholder="请输入表达式" autocomplete="on" class="layui-input" >
+				        <input type="text" name="success_expression" lay-verify="required" placeholder="请输入表达式" autocomplete="on" class="layui-input" >
+				      </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">输出属性：</label>
+				      <div class="layui-input-block">
+				        <input type="text" name="var_name" placeholder="请输入需要输出的属性,用英文','隔开,例如:name,age,sex" autocomplete="on" class="layui-input" >
+				      </div>
+				  </div>
+				  <div class="layui-form-item">
+				    <label class="layui-form-label">输出映射：</label>
+				      <div class="layui-input-block">
+				        <input type="text" name="var_expression" placeholder="请输入输出属性对应的映射符,按位对应，用英文','隔开" autocomplete="on" class="layui-input" >
 				      </div>
 				  </div>
 				  <div class="layui-form-item">
@@ -139,6 +151,8 @@ function linkAddPage(){
 		    		$("#linkAddPage select[name='protocol_type']").val(params.protocolType);
 		    		$("#linkAddPage input[name='stresstest_url']").val(params.stresstestUrl);
 		    		$("#linkAddPage input[name='success_expression']").val(params.successExpression);
+		    		$("#linkAddPage input[name='var_name']").val(params.varName);
+		    		$("#linkAddPage input[name='var_expression']").val(params.varExpression);
 		    		$("#linkAddPage select[name='request_type']").val(params.requestType);
 		    		$("#linkAddPage select[name='content_type']").val(params.contentType);
 		    		$("#linkAddPage select[name='charset_type']").val(params.charsetType);
@@ -169,6 +183,8 @@ function linkAddPage(){
 				        protocolType:parseInt(formParam.protocol_type),
 				        stresstestUrl:formParam.stresstest_url,
 				        successExpression:formParam.success_expression,
+				        varName:formParam.var_name,
+				        varExpression:formParam.var_expression,
 				        requestType:parseInt(formParam.request_type),
 				        contentType:parseInt(formParam.content_type),
 				        charsetType:parseInt(formParam.charset_type),

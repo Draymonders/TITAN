@@ -29,6 +29,11 @@ public class LinkVariable {
 	private Long linkVariableId;
 	
 	/**
+	 * 链路ID
+	 */
+	private Long linkId;
+	
+	/**
 	 * 压测URL
 	 */
 	private String stresstestUrl;
@@ -87,6 +92,11 @@ public class LinkVariable {
 	public void setVarExpression(String varExpression) {
 		this.varExpression = varExpression;
 	}
-
+	public Long getLinkId() {
+		return linkId;
+	}
+	public void setLinkId(Long linkId) {
+		this.linkId = linkId;
+	}
 	
 }

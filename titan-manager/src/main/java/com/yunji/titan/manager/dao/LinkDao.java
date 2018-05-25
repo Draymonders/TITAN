@@ -16,13 +16,19 @@
  */
 package com.yunji.titan.manager.dao;
 
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.List;
 
 import javax.annotation.Resource;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.PreparedStatementCreator;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 
+import com.mysql.jdbc.Statement;
 import com.yunji.titan.manager.bo.LinkBO;
 import com.yunji.titan.manager.entity.Link;
 import com.yunji.titan.manager.entity.LinkVariable;
@@ -111,12 +117,33 @@ public class LinkDao {
 	 * @author liuliang
 	 *
 	 * @param linkBO 链路参数BO
-	 * @return int 受影响的记录数
+	 * @return int 新增link主键值
 	 * @throws Exception
 	 */
 	public int addLink(LinkBO linkBO) throws Exception{
-		String sql = "INSERT INTO t_link(link_name,protocol_type,stresstest_url,request_type,content_type,charset_type,testfile_path,create_time,modify_time,success_expression) VALUES(?,?,?,?,?,?,?,?,?,?)";
-		return jdbcTemplate.update(sql,new Object[]{linkBO.getLinkName(),linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),System.currentTimeMillis(),linkBO.getSuccessExpression()});
+		final String sql = "INSERT INTO t_link(link_name,protocol_type,stresstest_url,request_type,content_type,charset_type,testfile_path,create_time,modify_time,success_expression) VALUES(?,?,?,?,?,?,?,?,?,?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(new PreparedStatementCreator() {
+			@Override
+			public java.sql.PreparedStatement createPreparedStatement(Connection conn) throws SQLException {
+				java.sql.PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+                ps.setString(1, linkBO.getLinkName());
+                ps.setInt(2, linkBO.getProtocolType());
+                ps.setString(3, linkBO.getStresstestUrl());
+                ps.setInt(4, linkBO.getRequestType());
+                ps.setInt(5, linkBO.getContentType());
+                ps.setInt(6,linkBO.getCharsetType());
+                ps.setString(7,linkBO.getTestfilePath());
+                ps.setLong(8,System.currentTimeMillis());
+                ps.setLong(9,System.currentTimeMillis());
+                ps.setString(10,linkBO.getSuccessExpression());
+                return ps;
+			}
+           
+        }, keyHolder); 
+//		String sql = "INSERT INTO t_link(link_name,protocol_type,stresstest_url,request_type,content_type,charset_type,testfile_path,create_time,modify_time,success_expression) VALUES(?,?,?,?,?,?,?,?,?,?)";
+//		return jdbcTemplate.update(sql,new Object[]{linkBO.getLinkName(),linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),System.currentTimeMillis(),linkBO.getSuccessExpression()});
+        return keyHolder.getKey().intValue();
 	}
 
 	/**
@@ -194,4 +221,22 @@ public class LinkDao {
         return jdbcTemplate.query(sql,linkVariableMapper);
 	}
 
+	/**
+	 * @desc 增加链路输出属性
+	 *
+	 * @throws Exception
+	 */
+	public int addLinkVariable(LinkVariable linkVarBO) throws Exception{
+		String sql = "INSERT INTO t_link_variable(link_id,stresstest_url,var_name,var_expression,create_time,modify_time) VALUES(?,?,?,?,?,?)";
+		return jdbcTemplate.update(sql,new Object[]{linkVarBO.getLinkId(),linkVarBO.getStresstestUrl(),linkVarBO.getVarName(),linkVarBO.getVarExpression(),System.currentTimeMillis(),System.currentTimeMillis()});
+	}
+
+	/**
+	 * @desc 删除链路输出属性
+	 *
+	 * @throws Exception
+	 */
+	public int removeLinkVariableByLinkId(String ids) {
+		return jdbcTemplate.update("DELETE FROM t_link_variable WHERE link_id in (" + ids + ")");
+	}
 }

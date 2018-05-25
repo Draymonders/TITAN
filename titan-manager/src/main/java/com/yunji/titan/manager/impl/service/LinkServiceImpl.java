@@ -18,6 +18,7 @@ package com.yunji.titan.manager.impl.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -121,12 +122,34 @@ public class LinkServiceImpl implements LinkService{
 	 * @author liuliang
 	 *
 	 * @param linkBO 链路参数BO
-	 * @return int 受影响的记录数
+	 * @return int 新增链路id
 	 * @throws Exception
 	 */
 	@Override
 	public int addLink(LinkBO linkBO) throws Exception {
-		return linkDao.addLink(linkBO);
+		int linkId = linkDao.addLink(linkBO);
+		SaveLinkVariable(linkBO, linkId);
+		return linkId;
+	}
+
+	private void SaveLinkVariable(LinkBO linkBO, int linkId) throws Exception {
+		linkDao.removeLinkVariableByLinkId(String.valueOf(linkId));
+		
+		String varName = linkBO.getVarName();
+		String varExpression = linkBO.getVarExpression();
+		if(StringUtils.isNotBlank(varName) && StringUtils.isNotBlank(varExpression)){
+			String[] varNames = varName.split(",");
+			String[] varExpressions = varExpression.split(",");
+			for (int i = 0; i < Math.min(varNames.length, varExpressions.length); i++) {
+				// to do insert linkVar
+				LinkVariable linkVariable = new LinkVariable();
+				linkVariable.setLinkId((long)linkId);
+				linkVariable.setStresstestUrl(linkBO.getStresstestUrl());
+				linkVariable.setVarName(varNames[i]);
+				linkVariable.setVarExpression(varExpressions[i]);
+				linkDao.addLinkVariable(linkVariable);
+			}
+		}
 	}
 
 	/**
@@ -140,6 +163,7 @@ public class LinkServiceImpl implements LinkService{
 	 */
 	@Override
 	public int updateLink(LinkBO linkBO) throws Exception {
+		SaveLinkVariable(linkBO,linkBO.getLinkId().intValue());
 		return linkDao.updateLink(linkBO);
 	}
 
@@ -154,6 +178,7 @@ public class LinkServiceImpl implements LinkService{
 	 */
 	@Override
 	public int removeLink(String idList) throws Exception {
+		linkDao.removeLinkVariableByLinkId(String.valueOf(idList));
 		return linkDao.removeLink(idList);
 	}
 
@@ -168,7 +193,13 @@ public class LinkServiceImpl implements LinkService{
 	 */
 	@Override
 	public Link getLink(long linkId) throws Exception {
-		return linkDao.getLink(linkId);
+		Link link = linkDao.getLink(linkId);
+		List<LinkVariable> linkVariables = linkDao.getLinkVariableByIds(String.valueOf(linkId));
+		String varNames = linkVariables.stream().map(l ->l.getVarName()).collect(Collectors.joining(","));
+		String varExpressions = linkVariables.stream().map(l ->l.getVarExpression()).collect(Collectors.joining(","));
+		link.setVarName(varNames);
+		link.setVarExpression(varExpressions);
+		return link;
 	}
 
 	/**
@@ -212,6 +243,7 @@ public class LinkServiceImpl implements LinkService{
 	public int removeLinkAndUpdateScene(long linkId, int sceneCount) throws Exception {
 		//1、删除链路
 		int removedLinkNum = linkDao.removeLink(String.valueOf(linkId));
+		linkDao.removeLinkVariableByLinkId(String.valueOf(linkId));
 		//2、更新链路相关场景
 		//2.1、查询linkId关联的所有场景
 		List<Scene> sceneList = sceneDao.getSceneListByLinkId(linkId, 0, sceneCount);  

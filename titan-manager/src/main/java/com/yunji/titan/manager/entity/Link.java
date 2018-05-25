@@ -66,6 +66,14 @@ public class Link {
 	/**
 	 * 判断链路是否成功的正则表达式
 	 */
+	/**
+	 * 链路输出属性
+	 */
+	private String varName;
+	/**
+	 * 链路输出映射
+	 */
+	private String varExpression;
 	private String successExpression;
 	public Long getLinkId() {
 		return linkId;
@@ -133,5 +141,16 @@ public class Link {
 	public void setSuccessExpression(String successExpression) {
 		this.successExpression = successExpression;
 	}
-	
+	public String getVarName() {
+		return varName;
+	}
+	public void setVarName(String varName) {
+		this.varName = varName;
+	}
+	public String getVarExpression() {
+		return varExpression;
+	}
+	public void setVarExpression(String varExpression) {
+		this.varExpression = varExpression;
+	}
 }

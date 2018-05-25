@@ -36,6 +36,7 @@ public class LinkVariableMapper implements RowMapper<LinkVariable>{
 	@Override
 	public LinkVariable mapRow(ResultSet rs, int rowNum) throws SQLException {
 		LinkVariable link = new LinkVariable();
+		link.setLinkId(rs.getLong("link_id"));
 		link.setStresstestUrl(rs.getString("stresstest_url"));
 		link.setVarName(rs.getString("var_name"));
 		link.setVarExpression(rs.getString("var_expression"));
