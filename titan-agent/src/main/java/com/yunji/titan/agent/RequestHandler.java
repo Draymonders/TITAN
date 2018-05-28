@@ -240,7 +240,8 @@ public class RequestHandler {
 							break;
 						}
 						outParam = outParamBO.getData();
-						varValue=this.getVariableValue(variables, url, outParam);
+						Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
+						varValue.putAll(varTemp);
 						//这里解析${}出参，放于上下文
 					}
 					/* 检测一次链路的压测结果 */
@@ -281,7 +282,7 @@ public class RequestHandler {
 					   param=((JSONObject)param).toString();
 				   }
 			}
-			map.put(varName, (String)param);
+			map.put(varName, String.valueOf(param) );
 		}
 		return map;
    }
