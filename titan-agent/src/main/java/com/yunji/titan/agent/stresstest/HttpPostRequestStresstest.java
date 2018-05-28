@@ -82,7 +82,7 @@ public class HttpPostRequestStresstest implements Stresstest {
 			param = paramExpression.get(context);
 			String header = headerExpression.get(context);
 			/* 将上一个接口的出参作为下一个接口的指定入参 */
-			if (!StringUtils.isEmpty(outParam) && contentType == ContentType.APPLICATION_JSON) {
+			if (!StringUtils.isEmpty(outParam)) {
 				log.debug("BEFORE" + param);
 				param = PropertyResolver.resolver(param, outParam, RequestType.POST);
 				// String value = ParamUtils.jsonCombination(param, outParam);
