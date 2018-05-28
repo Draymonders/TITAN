@@ -229,7 +229,7 @@ public class RequestHandler {
 						String expression=successExpression.get(url);
 						if(!StringUtils.isEmpty(expression)){
 							Pattern pattern = Pattern.compile(expression);
-							Matcher matcher = pattern.matcher(outParamBO.getData());
+							Matcher matcher = pattern.matcher(outParamBO.getData()==null?"":outParamBO.getData());
 							if(!matcher.matches())
 							{
 								result = false;
