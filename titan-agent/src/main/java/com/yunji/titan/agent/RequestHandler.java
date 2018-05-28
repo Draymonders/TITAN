@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -241,7 +242,12 @@ public class RequestHandler {
 						}
 						outParam = outParamBO.getData();
 						Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
-						varValue.putAll(varTemp);
+
+						for(Entry<String, String> entry:varTemp.entrySet()){
+							if(!entry.getKey().contains("_")){
+								varValue.put(entry.getKey(), entry.getValue());
+							}
+						}
 						//这里解析${}出参，放于上下文
 					}
 					/* 检测一次链路的压测结果 */
