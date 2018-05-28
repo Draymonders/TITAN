@@ -37,6 +37,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.state.AgentStateContext;
@@ -286,6 +287,8 @@ public class RequestHandler {
 				   param=j.get(keys[i]);
 				   if(param instanceof JSONObject){
 					   param=((JSONObject)param).toString();
+				   }else if(param instanceof JSONArray){
+					   param = ((JSONArray) param).getJSONObject(0).toString();
 				   }
 			}
 			map.put(varName, String.valueOf(param) );
