@@ -21,7 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -30,6 +29,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.Resource;
+
 import org.apache.zookeeper.ZooKeeper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +38,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yunji.titan.agent.bean.bo.OutParamBO;
+import com.yunji.titan.agent.link.Link;
+import com.yunji.titan.agent.link.LinkRelolver;
+import com.yunji.titan.agent.link.StressTestContext;
+import com.yunji.titan.agent.link.StressTestResult;
 import com.yunji.titan.agent.state.AgentStateContext;
 import com.yunji.titan.agent.state.FreeState;
 import com.yunji.titan.agent.state.StopState;
@@ -145,14 +148,14 @@ public class RequestHandler {
 		if (0 < initConcurrentUsersSize) {
 			/* 准备开始预热 */
 			runStresstest(initConcurrentUsersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression);
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds());
 			log.info("起步量级的预热任务(起步量级-->" + initConcurrentUsersSize + ",每个并发用户分配的任务数-->" + taskSize
 					+ ")已经完成,开始准备过渡到正常流量");
 		}
 		final int remConcurrentusersSize = concurrentUsersSize - initConcurrentUsersSize;
 		if (remConcurrentusersSize > 0) {
 			runStresstest(remConcurrentusersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression);
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds());
 		}
 		try {
 			latch.await();
@@ -185,7 +188,7 @@ public class RequestHandler {
 			final Map<String, Integer> paramIndex, final AtomicInteger httpSuccessNum,
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
 			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables,
-			final Map<String, String> successExpression) {
+			final Map<String, String> successExpression,String containLinkIds) {
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();
@@ -199,59 +202,28 @@ public class RequestHandler {
 					/* 全链路压测时上一个接口的出参 */
 					String outParam = null;
 					Map<String,String> varValue=new HashMap<String,String>();
-					boolean result = true;
-					for (String url : urls) {
-						this.log.info("--开始请求url="+url);
-						Stresstest stresstest = null;
-						String inParam = null;
-						OutParamBO outParamBO = null;
-						if (taskBean.getParams().containsKey(url)) {
-							List<String> params = taskBean.getParams().get(url);
-							if (!params.isEmpty()) {
-								/* 获取压测参数索引 */
-								int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size());
-								inParam = params.get(paramIdex);
-							}
-						}
-						switch (requestTypes.get(url)) {
-						case GET:
-							stresstest = httpGetRequestStresstest;
-							break;
-						case POST:
-							stresstest = httpPostRequestStresstest;
-							break;
-						default:
-							break;
-						}
-						outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
-								charsets.get(url),varValue);
-						code = outParamBO.getErrorCode();
-						String expression=successExpression.get(url);
-						if(!StringUtils.isEmpty(expression)){
-							Pattern pattern = Pattern.compile(expression);
-							Matcher matcher = pattern.matcher(outParamBO.getData());
-							if(!matcher.matches())
-							{
-								result = false;
-								break;
-							}
-						}else if (Integer.parseInt(this.code) != code) {
-							/* 返回业务码不为${code}则失败 */
-							result = false;
-							break;
-						}
-						outParam = outParamBO.getData();
-						Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
+					LinkRelolver relolver=new LinkRelolver();
 
-						for(Entry<String, String> entry:varTemp.entrySet()){
-							if(!entry.getKey().contains("_")){
-								varValue.put(entry.getKey(), entry.getValue());
-							}
-						}
-						//这里解析${}出参，放于上下文
-					}
+					LinkRelolver r=new LinkRelolver();
+					r.setThreadPoolManager(this.threadPoolManager);
+					Link link=r.relover(containLinkIds);
+					StressTestContext stc=new StressTestContext();
+					stc.setCharsets(charsets);
+					stc.setCode(this.code);
+					stc.setContentTypes(contentTypes);
+					stc.setHttpGetRequestStresstest(httpGetRequestStresstest);
+					stc.setHttpPostRequestStresstest(httpPostRequestStresstest);
+					stc.setParamIndex(paramIndex);
+					stc.setRequestTypes(requestTypes);
+					stc.setSuccessExpression(successExpression);
+					stc.setTaskBean(taskBean);
+					stc.setVariables(variables);
+					stc.setVarValue(varValue);
+					StressTestResult result=link.execute(stc);
+					
+//					boolean result = true;
 					/* 检测一次链路的压测结果 */
-					if (result) {
+					if (result.isSuccess()) {
 						httpSuccessNum.getAndIncrement();
 						serviceSuccessNum.getAndIncrement();
 					} else if (-10000 != code) {

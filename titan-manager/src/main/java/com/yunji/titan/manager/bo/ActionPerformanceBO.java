@@ -105,6 +105,8 @@ public class ActionPerformanceBO implements Serializable {
 	 * 链路是否成功的正则表达式
 	 */
 	private Map<String, String> successExpression = new HashMap<String, String>(16);
+	
+	private String containLinkIds;
 	public Long getSceneId() {
 		return sceneId;
 	}
@@ -239,6 +241,14 @@ public class ActionPerformanceBO implements Serializable {
 
 	public void setSuccessExpression(Map<String, String> successExpression) {
 		this.successExpression = successExpression;
+	}
+
+	public String getContainLinkIds() {
+		return containLinkIds;
+	}
+
+	public void setContainLinkIds(String containLinkIds) {
+		this.containLinkIds = containLinkIds;
 	}
 
 	@Override

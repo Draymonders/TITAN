@@ -47,6 +47,7 @@ public class AgentTaskBean {
 	private Map<String, String> charsets = new ConcurrentHashMap<>();
 	private Map<String, String> successExpression = new ConcurrentHashMap<>();
 	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
+	private String containLinkIds;
 
 	public Map<String, ContentType> getContentTypes() {
 		return contentTypes;
@@ -190,6 +191,14 @@ public class AgentTaskBean {
 
 	public void setSuccessExpression(Map<String, String> successExpression) {
 		this.successExpression = successExpression;
+	}
+
+	public String getContainLinkIds() {
+		return containLinkIds;
+	}
+
+	public void setContainLinkIds(String containLinkIds) {
+		this.containLinkIds = containLinkIds;
 	}
 	
 }

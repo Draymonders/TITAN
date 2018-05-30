@@ -95,12 +95,15 @@ public class OperateServiceImpl implements OperateService {
 		int agentSize = scene.getUseAgent();
 		int expectThroughput = scene.getExpectTps();
 		String ids = scene.getContainLinkid();
+		ids=ids.replaceAll("[", "").replaceAll("]", "");
 		int hour = scene.getDurationHour();
 		int min = scene.getDurationMin();
 		int sec = scene.getDurationSec();
 		// 2、查询链路信息
 		List<Link> linkList = linkService.getLinkListByIds(ids);
 		// 3、拼装参数
+		String cidstr=this.rmchar(ids);
+		String[] cids=cidstr.split(",");
 		Map<String, ProtocolType> protocolTypes = new HashMap<String, ProtocolType>(16);
 		Map<String, RequestType> requestTypes = new HashMap<String, RequestType>(16);
 		Map<String, ContentType> contentTypes = new HashMap<String, ContentType>(16);
@@ -108,7 +111,8 @@ public class OperateServiceImpl implements OperateService {
 		Map<String, String> successExpression = new HashMap<String, String>(16);
 		Map<String, File> params = new HashMap<String, File>(16);
 		List<String> urls = new ArrayList<String>();
-		for (Link link : linkList) {
+		for(int i=0;i<cids.length;i++){
+			Link link=findLink(cids[i],linkList);
 			protocolTypes.put(link.getStresstestUrl(), CommonTypeUtil.getProtocolType(link.getProtocolType()));
 			requestTypes.put(link.getStresstestUrl(), CommonTypeUtil.getRequestType(link.getRequestType()));
 			contentTypes.put(link.getStresstestUrl(), ContentTypeEnum.getContentType(link.getContentType()));
@@ -162,6 +166,7 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setCharsets(charsets);
 		actionPerformanceBO.setVariables(vars);
 		actionPerformanceBO.setSuccessExpression(successExpression);
+		actionPerformanceBO.setContainLinkIds(ids);
 
 		return actionPerformanceBO;
 	}
@@ -232,6 +237,27 @@ public class OperateServiceImpl implements OperateService {
 		tb.setVariables(ap.getVariables());
 		tb.setSuccessExpression(ap.getSuccessExpression());
 		tb.setTimeUnit(ap.getTimeUnit());
+		tb.setContainLinkIds(ap.getContainLinkIds());
 	}
 	
+	private Link findLink(String id, List<Link> linkList){
+		for (Link link : linkList) {
+			if(id.equals(link.getLinkId().toString().equals(id))){
+				return link;
+			}
+		}
+		return null;
+	}
+
+	private String rmchar(String str){
+		String c1=""+str.charAt(0);
+		String c2=""+str.charAt(str.length()-1);
+		if(",".equals(c1)){
+			str=str.substring(1);
+		}
+		if(",".equals(c2)){
+			str=str.substring(0,str.length()-1);
+		}
+		return str;
+	}
 }

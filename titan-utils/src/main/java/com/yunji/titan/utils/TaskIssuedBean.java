@@ -50,6 +50,7 @@ public class TaskIssuedBean implements Serializable{
 	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
 	private Map<String, String> successExpression = new ConcurrentHashMap<>();
 	private TimeUnit timeUnit;
+	private String containLinkIds;
 
 	public String getTaskId() {
 		return taskId;
@@ -204,6 +205,14 @@ public class TaskIssuedBean implements Serializable{
 
 	public void setSuccessExpression(Map<String, String> successExpression) {
 		this.successExpression = successExpression;
+	}
+
+	public String getContainLinkIds() {
+		return containLinkIds;
+	}
+
+	public void setContainLinkIds(String containLinkIds) {
+		this.containLinkIds = containLinkIds;
 	}
 
 	@Override
