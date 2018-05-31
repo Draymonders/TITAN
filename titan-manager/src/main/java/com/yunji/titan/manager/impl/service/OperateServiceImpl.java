@@ -240,9 +240,9 @@ public class OperateServiceImpl implements OperateService {
 		tb.setContainLinkIds(ap.getContainLinkIds());
 	}
 	
-	private Link findLink(String id, List<Link> linkList){
+	private static Link findLink(String id, List<Link> linkList){
 		for (Link link : linkList) {
-			if(id.equals(link.getLinkId().toString().equals(id))){
+			if(id.equals(link.getLinkId().toString())){
 				return link;
 			}
 		}
@@ -260,4 +260,22 @@ public class OperateServiceImpl implements OperateService {
 		}
 		return str;
 	}
+
+//	   public static void main(String[] args){
+//		   List<Link> linkList=new ArrayList();
+//		   Link link=new Link();
+//		   link.setLinkId(1l);
+//		   linkList.add(link);
+//		   link=new Link();
+//		   link.setLinkId(2l);
+//		   linkList.add(link);
+//		   link=new Link();
+//		   link.setLinkId(3l);
+//		   linkList.add(link);
+//		   link=new Link();
+//		   link.setLinkId(2l);
+//		   linkList.add(link);
+//		   Link l=findLink("2",linkList);
+//		   l.getLinkName();
+//	   }
 }
