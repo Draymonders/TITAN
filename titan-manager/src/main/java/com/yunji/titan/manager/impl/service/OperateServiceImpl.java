@@ -95,7 +95,7 @@ public class OperateServiceImpl implements OperateService {
 		int agentSize = scene.getUseAgent();
 		int expectThroughput = scene.getExpectTps();
 		String ids = scene.getContainLinkid();
-		ids=ids.replaceAll("[", "").replaceAll("]", "");
+		ids=ids.replace("[", "").replace("]", "");
 		int hour = scene.getDurationHour();
 		int min = scene.getDurationMin();
 		int sec = scene.getDurationSec();
