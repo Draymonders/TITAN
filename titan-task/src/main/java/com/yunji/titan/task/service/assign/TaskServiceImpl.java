@@ -162,6 +162,7 @@ public class TaskServiceImpl implements TaskService {
 			if (0 != taskIssuedBean.getContinuedTime() && null != taskIssuedBean.getTimeUnit()) {
 				taskBean.setContinuedTime(taskIssuedBean.getTimeUnit().toSeconds(taskIssuedBean.getContinuedTime()));
 			}
+			taskBean.setContainLinkIds(taskIssuedBean.getContainLinkIds());
 			String taskInfo = JSON.toJSONString(taskBean);
 			log.info("znode-->" + znode + "的任务信息-->" + taskInfo);
 			/* 将agent对应的任务信息上传至ftp等待任务下发 */
