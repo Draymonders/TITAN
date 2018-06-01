@@ -2,20 +2,25 @@ package com.yunji.titan.agent.link;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import com.yunji.titan.utils.ThreadPoolManager;
 
 public class LinkRelolver {
 	private ThreadPoolManager threadPoolManager;//=new ThreadPoolManager()
+	private Map<String, String> idUrls;
 	public Link relover(String expression){
 //		threadPoolManager.setCorePoolSize(2000);
 //		threadPoolManager.setMaximumPoolSize(2000);
 //		threadPoolManager.setKeepAliveTime(5);
 //		threadPoolManager.setCapacity(1000);
 //		threadPoolManager.init();
-		expression=rmchar(expression);
 		Link rootLink=new SerialLink();
 		Link curLink=null;
+		if(expression==null || "".equals(expression)){
+			return rootLink;
+		}
+		expression=rmchar(expression);
 		List<String> list=new ArrayList();
 		while(true){
 			int start=expression.indexOf("[");
@@ -60,10 +65,20 @@ public class LinkRelolver {
 		String[] list=ids.split(",");
 		for(int i=0;i<list.length;i++){
 			UrlLink urlLink=new UrlLink();
-			urlLink.setUrl(list[i]);
+			String url=idUrls.get(list[i]);
+			urlLink.setUrl(url);
 			link.addLink(urlLink);
 		}
 	}
+//	private String getUrl(String id){
+//		String url="";
+//		for(int i=0;i<this.urls.size();i++){
+//			if(id.equals(this.urls.get(i))){
+//				url=this.urls.get(i+1);
+//			}
+//		}
+//		return url;
+//	}
 	private String rmchar(String str){
 		String c1=""+str.charAt(0);
 		String c2=""+str.charAt(str.length()-1);
@@ -81,6 +96,13 @@ public class LinkRelolver {
 	}
 	public void setThreadPoolManager(ThreadPoolManager threadPoolManager) {
 		this.threadPoolManager = threadPoolManager;
+	}
+	
+	public Map<String, String> getIdUrls() {
+		return idUrls;
+	}
+	public void setIdUrls(Map<String, String> idUrls) {
+		this.idUrls = idUrls;
 	}
 	public static void main(String[] args) {
 		LinkRelolver r=new LinkRelolver();

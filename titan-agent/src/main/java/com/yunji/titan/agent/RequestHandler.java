@@ -149,14 +149,16 @@ public class RequestHandler {
 		if (0 < initConcurrentUsersSize) {
 			/* 准备开始预热 */
 			runStresstest(initConcurrentUsersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds());
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds(),
+					taskBean.getIdUrls());
 			log.info("起步量级的预热任务(起步量级-->" + initConcurrentUsersSize + ",每个并发用户分配的任务数-->" + taskSize
 					+ ")已经完成,开始准备过渡到正常流量");
 		}
 		final int remConcurrentusersSize = concurrentUsersSize - initConcurrentUsersSize;
 		if (remConcurrentusersSize > 0) {
 			runStresstest(remConcurrentusersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
-					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds());
+					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds(),
+					taskBean.getIdUrls());
 		}
 		try {
 			latch.await();
@@ -189,7 +191,7 @@ public class RequestHandler {
 			final Map<String, Integer> paramIndex, final AtomicInteger httpSuccessNum,
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
 			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables,
-			final Map<String, String> successExpression,String containLinkIds) {
+			final Map<String, String> successExpression,String containLinkIds,final Map<String, String> idUrls) {
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();
@@ -203,10 +205,10 @@ public class RequestHandler {
 					/* 全链路压测时上一个接口的出参 */
 					String outParam = null;
 					Map<String,String> varValue=new HashMap<String,String>();
-					LinkRelolver relolver=new LinkRelolver();
 
 					LinkRelolver r=new LinkRelolver();
 					r.setThreadPoolManager(this.threadPoolManager);
+					r.setIdUrls(idUrls);
 					Link link=r.relover(containLinkIds);
 					StressTestContext stc=new StressTestContext();
 					stc.setCharsets(charsets);

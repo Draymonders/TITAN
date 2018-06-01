@@ -107,6 +107,9 @@ public class ActionPerformanceBO implements Serializable {
 	private Map<String, String> successExpression = new HashMap<String, String>(16);
 	
 	private String containLinkIds;
+	
+	private Map<String, String> idUrls;
+	
 	public Long getSceneId() {
 		return sceneId;
 	}
@@ -249,6 +252,14 @@ public class ActionPerformanceBO implements Serializable {
 
 	public void setContainLinkIds(String containLinkIds) {
 		this.containLinkIds = containLinkIds;
+	}
+
+	public Map<String, String> getIdUrls() {
+		return idUrls;
+	}
+
+	public void setIdUrls(Map<String, String> idUrls) {
+		this.idUrls = idUrls;
 	}
 
 	@Override

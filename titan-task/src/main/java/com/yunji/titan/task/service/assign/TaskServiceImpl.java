@@ -163,6 +163,7 @@ public class TaskServiceImpl implements TaskService {
 				taskBean.setContinuedTime(taskIssuedBean.getTimeUnit().toSeconds(taskIssuedBean.getContinuedTime()));
 			}
 			taskBean.setContainLinkIds(taskIssuedBean.getContainLinkIds());
+			taskBean.setIdUrls(taskIssuedBean.getIdUrls());
 			String taskInfo = JSON.toJSONString(taskBean);
 			log.info("znode-->" + znode + "的任务信息-->" + taskInfo);
 			/* 将agent对应的任务信息上传至ftp等待任务下发 */
@@ -284,7 +285,7 @@ public class TaskServiceImpl implements TaskService {
 	private Map<String, AgentTaskBean> missionSchedule(List<String> znodes, int agentSize, List<String> urls,
 			Map<String, List<String>> params, Map<String, RequestType> requestTypes,
 			Map<String, ProtocolType> protocolTypes, Map<String, ContentType> contentTypes,
-			Map<String, String> charsets,Map<String, List<String>> variables,Map<String, String> successExpression ) {
+			Map<String, String> charsets,Map<String, List<String>> variables,Map<String, String> successExpression) {
 		Map<String, AgentTaskBean> taskMap = new ConcurrentHashMap<String, AgentTaskBean>(16);
 		/* 定义目标agent分配动态参数的开始索引 */
 		Map<String, Integer> startIndex = new ConcurrentHashMap<String, Integer>(16);

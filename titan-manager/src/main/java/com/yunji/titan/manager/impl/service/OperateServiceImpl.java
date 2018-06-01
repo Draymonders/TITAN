@@ -110,6 +110,7 @@ public class OperateServiceImpl implements OperateService {
 		Map<String, String> charsets = new HashMap<String, String>(16);
 		Map<String, String> successExpression = new HashMap<String, String>(16);
 		Map<String, File> params = new HashMap<String, File>(16);
+		Map<String, String> idUrls = new HashMap<String, String>(16);
 		List<String> urls = new ArrayList<String>();
 		for(int i=0;i<cids.length;i++){
 			Link link=findLink(cids[i],linkList);
@@ -124,6 +125,7 @@ public class OperateServiceImpl implements OperateService {
 			} else {
 				params.put(link.getStresstestUrl(), new File(link.getTestfilePath()));
 			}
+			idUrls.put(cids[i], link.getStresstestUrl());
 			urls.add(link.getStresstestUrl());
 		}
 		// 4、查询链路变量定义信息
@@ -167,6 +169,7 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setVariables(vars);
 		actionPerformanceBO.setSuccessExpression(successExpression);
 		actionPerformanceBO.setContainLinkIds(ids);
+		actionPerformanceBO.setIdUrls(idUrls);
 
 		return actionPerformanceBO;
 	}
@@ -238,6 +241,7 @@ public class OperateServiceImpl implements OperateService {
 		tb.setSuccessExpression(ap.getSuccessExpression());
 		tb.setTimeUnit(ap.getTimeUnit());
 		tb.setContainLinkIds(ap.getContainLinkIds());
+		tb.setIdUrls(ap.getIdUrls());
 	}
 	
 	private static Link findLink(String id, List<Link> linkList){

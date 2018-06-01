@@ -51,6 +51,7 @@ public class TaskIssuedBean implements Serializable{
 	private Map<String, String> successExpression = new ConcurrentHashMap<>();
 	private TimeUnit timeUnit;
 	private String containLinkIds;
+	private Map<String, String> idUrls;
 
 	public String getTaskId() {
 		return taskId;
@@ -213,6 +214,14 @@ public class TaskIssuedBean implements Serializable{
 
 	public void setContainLinkIds(String containLinkIds) {
 		this.containLinkIds = containLinkIds;
+	}
+
+	public Map<String, String> getIdUrls() {
+		return idUrls;
+	}
+
+	public void setIdUrls(Map<String, String> idUrls) {
+		this.idUrls = idUrls;
 	}
 
 	@Override
