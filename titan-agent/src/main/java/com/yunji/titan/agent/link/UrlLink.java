@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.stresstest.Stresstest;
@@ -147,6 +148,8 @@ public class UrlLink  implements Link{
 				   param=j.get(keys[i]);
 				   if(param instanceof JSONObject){
 					   param=((JSONObject)param).toString();
+				   }else if(param instanceof JSONArray){
+					   param = ((JSONArray) param).getJSONObject(0).toString();
 				   }
 			}
 			map.put(varName, String.valueOf(param) );

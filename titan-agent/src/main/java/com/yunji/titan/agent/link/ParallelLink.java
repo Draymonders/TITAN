@@ -25,9 +25,9 @@ public class ParallelLink implements Link{
 	private ThreadPoolManager threadPoolManager;
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
-		logger.info("--start ParallelLink");
 		latch= new CountDownLatch(links.size());
 		StressTestResult result=new StressTestResult();
+		logger.info("--start ParallelLink"+result.toString().split("@")[1]);
 		for(Link link :links){
 			threadPoolManager.getThreadPool().execute(() -> {
 				StressTestResult r=link.execute(stc);
@@ -42,7 +42,7 @@ public class ParallelLink implements Link{
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
-		logger.info("--end ParallelLink");
+		logger.info("--end ParallelLink"+result.toString().split("@")[1]);
 		return result;
 	}
 

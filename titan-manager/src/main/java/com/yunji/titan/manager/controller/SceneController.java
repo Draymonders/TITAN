@@ -275,6 +275,7 @@ public class SceneController {
 			Scene scene = sceneService.getScene(sceneBO.getSceneId());
 			if(null != scene){
 				String containLinkid = scene.getContainLinkid();
+				containLinkid=containLinkid.replace("[", "").replace("]", "");
 				List<Link> linkList = linkService.getLinkListByIds(containLinkid);
 				
 				componentResult.setData(new SceneDetailBO(scene, linkList));

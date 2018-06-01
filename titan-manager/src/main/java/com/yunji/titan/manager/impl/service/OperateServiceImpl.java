@@ -94,8 +94,8 @@ public class OperateServiceImpl implements OperateService {
 		long taskSize = scene.getTotalRequest();
 		int agentSize = scene.getUseAgent();
 		int expectThroughput = scene.getExpectTps();
-		String ids = scene.getContainLinkid();
-		ids=ids.replace("[", "").replace("]", "");
+		String oldids = scene.getContainLinkid();
+		String ids=oldids.replace("[", "").replace("]", "");
 		int hour = scene.getDurationHour();
 		int min = scene.getDurationMin();
 		int sec = scene.getDurationSec();
@@ -168,7 +168,7 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setCharsets(charsets);
 		actionPerformanceBO.setVariables(vars);
 		actionPerformanceBO.setSuccessExpression(successExpression);
-		actionPerformanceBO.setContainLinkIds(ids);
+		actionPerformanceBO.setContainLinkIds(oldids);
 		actionPerformanceBO.setIdUrls(idUrls);
 
 		return actionPerformanceBO;
