@@ -1,20 +1,12 @@
 package com.yunji.titan.agent.link;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.concurrent.CountDownLatch;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.util.StringUtils;
 
-import com.yunji.titan.agent.bean.bo.OutParamBO;
-import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.ThreadPoolManager;
 
 public class ParallelLink implements Link{
@@ -26,11 +18,15 @@ public class ParallelLink implements Link{
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
 		latch= new CountDownLatch(links.size());
+		List<StressTestContext> list=new ArrayList<StressTestContext>();
 		StressTestResult result=new StressTestResult();
 		logger.info("--start ParallelLink"+result.toString().split("@")[1]);
 		for(Link link :links){
 			threadPoolManager.getThreadPool().execute(() -> {
-				StressTestResult r=link.execute(stc);
+				//上一个链路的局部变量可供所有并发的链路使用，因此要copy一份局部变量到urlLink执行
+				StressTestContext tmp=stc.copyLocalVarValue();
+				list.add(tmp);
+				StressTestResult r=link.execute(tmp);
 				if(!r.isSuccess()){
 					result.setSuccess(false);
 				}
@@ -39,6 +35,12 @@ public class ParallelLink implements Link{
 		}
 		try {
 			latch.await();
+			//清空上一链接的局部变量
+			stc.getLocalVarValue().clear();
+			for(StressTestContext tmp:list){
+				//汇总所有并发链路产生的局部变量
+				stc.getLocalVarValue().putAll(tmp.getLocalVarValue());
+			}
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());
 		}
@@ -51,11 +53,6 @@ public class ParallelLink implements Link{
 		links.add(link);
 	}
 
-	@Override
-	public void setLinkIds(String ids) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	public ThreadPoolManager getThreadPoolManager() {
 		return threadPoolManager;

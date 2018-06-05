@@ -31,10 +31,5 @@ public class SerialLink  implements Link{
 		links.add(link);
 	}
 
-	@Override
-	public void setLinkIds(String ids) {
-		// TODO Auto-generated method stub
-		
-	}
 
 }

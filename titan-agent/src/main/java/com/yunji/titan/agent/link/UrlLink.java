@@ -28,66 +28,80 @@ public class UrlLink  implements Link{
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
 		StressTestResult result=new StressTestResult();
-		String outParam = null;
-		logger.info("--开始请求url="+url);
-		int code = -10000;
-		Stresstest stresstest = null;
-		String inParam = null;
-		OutParamBO outParamBO = null;
-		AgentTaskBean taskBean=stc.getTaskBean();
-		Map<String, Integer> paramIndex=stc.getParamIndex();
-		Map<String, RequestType> requestTypes=stc.getRequestTypes();
-		Stresstest httpGetRequestStresstest=stc.getHttpGetRequestStresstest();
-		Stresstest httpPostRequestStresstest=stc.getHttpPostRequestStresstest();
-		Map<String, String> charsets=stc.getCharsets();
-		Map<String, ContentType> contentTypes=stc.getContentTypes();
-		Map<String,String> varValue=stc.getVarValue();
-		Map<String, String> successExpression=stc.getSuccessExpression();
-		Map<String, List<String>> variables=stc.getVariables();
-		if (taskBean.getParams().containsKey(url)) {
-			List<String> params = taskBean.getParams().get(url);
-			if (!params.isEmpty()) {
-				/* 获取压测参数索引 */
-				int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size());
-				inParam = params.get(paramIdex);
+		try{
+			result.setData(this.url);
+			String outParam = null;
+			logger.info("--开始请求url="+url);
+			int code = -10000;
+			Stresstest stresstest = null;
+			String inParam = null;
+			OutParamBO outParamBO = null;
+			AgentTaskBean taskBean=stc.getTaskBean();
+			Map<String, Integer> paramIndex=stc.getParamIndex();
+			Map<String, RequestType> requestTypes=stc.getRequestTypes();
+			Stresstest httpGetRequestStresstest=stc.getHttpGetRequestStresstest();
+			Stresstest httpPostRequestStresstest=stc.getHttpPostRequestStresstest();
+			Map<String, String> charsets=stc.getCharsets();
+			Map<String, ContentType> contentTypes=stc.getContentTypes();
+			Map<String,String> varValue=stc.getVarValue();
+			Map<String, String> successExpression=stc.getSuccessExpression();
+			Map<String, List<String>> variables=stc.getVariables();
+			if (taskBean.getParams().containsKey(url)) {
+				List<String> params = taskBean.getParams().get(url);
+				if (!params.isEmpty()) {
+					/* 获取压测参数索引 */
+					int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size());
+					inParam = params.get(paramIdex);
+				}
 			}
-		}
-		switch (requestTypes.get(url)) {
-		case GET:
-			stresstest = httpGetRequestStresstest;
-			break;
-		case POST:
-			stresstest = httpPostRequestStresstest;
-			break;
-		default:
-			break;
-		}
-		outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
-				charsets.get(url),varValue);
-		code = outParamBO.getErrorCode();
-		String expression=successExpression.get(url);
-		if(!StringUtils.isEmpty(expression)){
-			Pattern pattern = Pattern.compile(expression);
-			Matcher matcher = pattern.matcher(outParamBO.getData());
-			if(!matcher.matches())
-			{
+			switch (requestTypes.get(url)) {
+			case GET:
+				stresstest = httpGetRequestStresstest;
+				break;
+			case POST:
+				stresstest = httpPostRequestStresstest;
+				break;
+			default:
+				break;
+			}
+			Map<String,String> tmpVarValue=new HashMap<String,String>();
+			tmpVarValue.putAll(varValue);
+			tmpVarValue.putAll(stc.getLocalVarValue());
+			outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
+					charsets.get(url),tmpVarValue);
+			code = outParamBO.getErrorCode();
+			String expression=successExpression.get(url);
+			if(!StringUtils.isEmpty(expression)){
+				Pattern pattern = Pattern.compile(expression);
+				Matcher matcher = pattern.matcher(outParamBO.getData());
+				if(!matcher.matches())
+				{
+					result.setSuccess(false); 
+					logger.info("-- request failed 1,url="+this.url);
+					return result;
+				}
+			}else if (Integer.parseInt(stc.getCode()) != code) {
+				/* 返回业务码不为${code}则失败 */
 				result.setSuccess(false); 
+				logger.info("-- request failed 2,url="+this.url);
 				return result;
 			}
-		}else if (Integer.parseInt(stc.getCode()) != code) {
-			/* 返回业务码不为${code}则失败 */
-			result.setSuccess(false); 
-			return result;
-		}
-		outParam = outParamBO.getData();
-		Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
+			outParam = outParamBO.getData();
+			Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
 
-		for(Entry<String, String> entry:varTemp.entrySet()){
-			if(!entry.getKey().contains("_")){
-				varValue.put(entry.getKey(), entry.getValue());
+			stc.getLocalVarValue().clear();
+			for(Entry<String, String> entry:varTemp.entrySet()){
+				if(!entry.getKey().contains("_")){//全局变量
+					varValue.put(entry.getKey(), entry.getValue());
+				}else{//局部变量
+					stc.getLocalVarValue().put(entry.getKey(), entry.getValue());
+				}
 			}
+			result.setSuccess(true); 
+		}catch(Exception e){
+			result.setSuccess(false); 
+			logger.error(e.getMessage());
 		}
-		result.setSuccess(true); 
 		return result;
 	
 	}
@@ -98,11 +112,6 @@ public class UrlLink  implements Link{
 		
 	}
 
-	@Override
-	public void setLinkIds(String ids) {
-		// TODO Auto-generated method stub
-		
-	}
 	
 	public void setUrl(String url){
 		this.url=url;

@@ -192,6 +192,10 @@ public class RequestHandler {
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
 			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables,
 			final Map<String, String> successExpression,String containLinkIds,final Map<String, String> idUrls) {
+		if(containLinkIds==null || "".equals(containLinkIds)){
+			log.error("--containLinkIds cann't be null");
+			return;
+		}
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();

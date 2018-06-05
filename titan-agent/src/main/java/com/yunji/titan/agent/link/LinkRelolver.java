@@ -1,63 +1,61 @@
 package com.yunji.titan.agent.link;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Map;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.yunji.titan.utils.ThreadPoolManager;
 
 public class LinkRelolver {
+	private Logger logger = LoggerFactory.getLogger(LinkRelolver.class);
 	private ThreadPoolManager threadPoolManager;//=new ThreadPoolManager()
 	private Map<String, String> idUrls;
 	public Link relover(String expression){
-//		threadPoolManager.setCorePoolSize(2000);
-//		threadPoolManager.setMaximumPoolSize(2000);
-//		threadPoolManager.setKeepAliveTime(5);
-//		threadPoolManager.setCapacity(1000);
-//		threadPoolManager.init();
 		Link rootLink=new SerialLink();
 		Link curLink=null;
-		if(expression==null || "".equals(expression)){
-			return rootLink;
-		}
-		expression=rmchar(expression);
-		List<String> list=new ArrayList();
-		while(true){
-			int start=expression.indexOf("[");
-			int end=expression.indexOf("]");
-			//start>0说明并发请求前有串行的请求 如 3,5[7,8]
-			if(start>0){
-				//截取串行请求的ids eg: 3,5
-				String ids=expression.substring(0,start);
-				//去掉左右的 , 字符
-				ids=rmchar(ids);
-				list.add(ids);
-				curLink=new SerialLink();
-				curLink.setLinkIds(ids);
-				this.addUrlLink(ids,curLink);
-				rootLink.addLink(curLink);
+		try{
+			if(expression==null || "".equals(expression)){
+				return rootLink;
 			}
-			if(start>=0){
-				//截取并行的请求 ids
-				String ids=expression.substring(start+1, end);
-				ids=rmchar(ids);
-				list.add(ids);
-				ParallelLink pLink=new ParallelLink();
-				pLink.setThreadPoolManager(threadPoolManager);
-				pLink.setLinkIds(ids);
-				rootLink.addLink(pLink);
-				this.addUrlLink(ids,pLink);
-				//去掉已经加入list的ids
-				expression=expression.substring(end+1);
-			}else{//说明没有并发请求标志([)了 
-				String ids=rmchar(expression);
-				list.add(ids);
-				curLink=new SerialLink();
-				curLink.setLinkIds(ids);
-				rootLink.addLink(curLink);
-				this.addUrlLink(ids,curLink);
-				break;
+			expression=rmchar(expression);
+//			List<String> list=new ArrayList();
+			while(true){
+				int start=expression.indexOf("[");
+				int end=expression.indexOf("]");
+				//start>0说明并发请求前有串行的请求 如 3,5[7,8]
+				if(start>0){
+					//截取串行请求的ids eg: 3,5
+					String ids=expression.substring(0,start);
+					//去掉左右的 , 字符
+					ids=rmchar(ids);
+//					list.add(ids);
+					curLink=new SerialLink();
+					this.addUrlLink(ids,curLink);
+					rootLink.addLink(curLink);
+				}
+				if(start>=0){
+					//截取并行的请求 ids
+					String ids=expression.substring(start+1, end);
+					ids=rmchar(ids);
+//					list.add(ids);
+					ParallelLink pLink=new ParallelLink();
+					pLink.setThreadPoolManager(threadPoolManager);
+					rootLink.addLink(pLink);
+					this.addUrlLink(ids,pLink);
+					//去掉已经加入list的ids
+					expression=expression.substring(end+1);
+				}else{//说明没有并发请求标志([)了 
+					String ids=rmchar(expression);
+//					list.add(ids);
+					curLink=new SerialLink();
+					rootLink.addLink(curLink);
+					this.addUrlLink(ids,curLink);
+					break;
+				}
 			}
+		}catch(Exception e){
+			logger.error("--relover expression error,"+e.getMessage());
 		}
 		return rootLink;
 	}

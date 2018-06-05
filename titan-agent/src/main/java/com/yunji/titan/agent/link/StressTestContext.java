@@ -1,9 +1,8 @@
 package com.yunji.titan.agent.link;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import javax.annotation.Resource;
 
 import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.AgentTaskBean;
@@ -25,6 +24,8 @@ public class StressTestContext {
 	private Map<String,String> varValue;
 	//是否成功编码
 	private String code;
+	//局部的变量、变量值
+	private Map<String,String> localVarValue=new HashMap<String,String>();
 	
 	public Map<String, Integer> getParamIndex() {
 		return paramIndex;
@@ -92,6 +93,27 @@ public class StressTestContext {
 	public void setCode(String code) {
 		this.code = code;
 	}
+	public Map<String, String> getLocalVarValue() {
+		return localVarValue;
+	}
+	public void setLocalVarValue(Map<String, String> localVarValue) {
+		this.localVarValue = localVarValue;
+	}
 	
-	
+	public StressTestContext copyLocalVarValue(){
+		StressTestContext cp=new StressTestContext();
+		cp.paramIndex=this.paramIndex;
+		cp.requestTypes=this.requestTypes;
+		cp.taskBean=this.taskBean;
+		cp.httpGetRequestStresstest=this.httpGetRequestStresstest;
+		cp.httpPostRequestStresstest=this.httpPostRequestStresstest;
+		cp.charsets=this.charsets;
+		cp.variables=this.variables;
+		cp.successExpression=this.successExpression;
+		cp.contentTypes=this.contentTypes;
+		cp.varValue=this.varValue;
+		cp.code=this.code;
+		cp.localVarValue.putAll(this.localVarValue);
+		return cp;
+	}
 }
