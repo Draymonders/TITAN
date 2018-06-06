@@ -38,8 +38,10 @@ public class ParallelLink implements Link{
 			//清空上一链接的局部变量
 			stc.getLocalVarValue().clear();
 			for(StressTestContext tmp:list){
-				//汇总所有并发链路产生的局部变量
-				stc.getLocalVarValue().putAll(tmp.getLocalVarValue());
+				if(tmp.getLocalVarValue().size()>0){
+					//汇总所有并发链路产生的局部变量
+					stc.getLocalVarValue().putAll(tmp.getLocalVarValue());
+				}
 			}
 		} catch (InterruptedException e) {
 			logger.error(e.getMessage());

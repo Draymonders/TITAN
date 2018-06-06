@@ -100,7 +100,7 @@ public class StressTestContext {
 		this.localVarValue = localVarValue;
 	}
 	
-	public StressTestContext copyLocalVarValue(){
+	public synchronized StressTestContext copyLocalVarValue(){
 		StressTestContext cp=new StressTestContext();
 		cp.paramIndex=this.paramIndex;
 		cp.requestTypes=this.requestTypes;
