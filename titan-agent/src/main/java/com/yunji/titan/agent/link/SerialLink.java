@@ -14,7 +14,7 @@ public class SerialLink  implements Link{
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
 		StressTestResult result=new StressTestResult();
-		logger.info("--start SerialLink"+result.toString().split("@")[1]);
+//		logger.info("--start SerialLink"+result.toString().split("@")[1]);
 		for(Link link :links){
 			StressTestResult r=link.execute(stc);
 			if(!r.isSuccess()){
@@ -22,7 +22,7 @@ public class SerialLink  implements Link{
 				break;
 			}
 		}
-		logger.info("--end SerialLink"+result.toString().split("@")[1]);
+//		logger.info("--end SerialLink"+result.toString().split("@")[1]);
 		return result;
 	}
 

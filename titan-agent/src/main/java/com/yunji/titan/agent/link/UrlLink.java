@@ -1,5 +1,6 @@
 package com.yunji.titan.agent.link;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,7 +32,7 @@ public class UrlLink  implements Link{
 		try{
 			result.setData(this.url);
 			String outParam = null;
-			logger.info("--开始请求url="+url);
+			logger.info("--开始请求url="+url+" | Thread:"+Thread.currentThread().getName()+" | Time:"+new Date());
 			int code = -10000;
 			Stresstest stresstest = null;
 			String inParam = null;
@@ -77,7 +78,7 @@ public class UrlLink  implements Link{
 				if(!matcher.matches())
 				{
 					result.setSuccess(false); 
-					logger.info("-- request failed 1,url="+this.url);
+					logger.info("-- request failed 1,url="+this.url+" | param:"+outParam+" | inParam:"+inParam+" | tmpVarValue:"+tmpVarValue);
 					return result;
 				}
 			}else if (Integer.parseInt(stc.getCode()) != code) {
@@ -142,7 +143,7 @@ public class UrlLink  implements Link{
 	 */
    private Map<String,String> getVariableValue(Map<String, List<String>> variables,String url,String outParam){
 		List<String> vars=variables.get(url);
-		Map<String,String> map=new HashMap();
+		Map<String,String> map=new HashMap<String,String>();
 		if(outParam==null){
 			return null;
 		}
