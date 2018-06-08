@@ -182,11 +182,11 @@ public class OperateServiceImpl implements OperateService {
 					).findFirst();
 			LinkBean b;
 			if(lb.isPresent()){
+				b=lb.get();
+			}else{
 				b=new LinkBean();
 				b.setLinkId(id);
 				links.add(b);
-			}else{
-				b=lb.get();
 			}
 			b.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
 		}
