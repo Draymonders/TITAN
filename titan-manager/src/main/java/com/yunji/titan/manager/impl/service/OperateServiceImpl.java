@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
@@ -28,7 +29,6 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.yunji.titan.manager.bo.ActionPerformanceBO;
@@ -152,7 +152,7 @@ public class OperateServiceImpl implements OperateService {
 		}
 		List<LinkBean> links=new ArrayList();
 		
-		String[] uol=scene.getUserOneloopLink().split(",");
+		String[] uol="".equals(scene.getUserOneloopLink().trim())?new String[]{}: scene.getUserOneloopLink().split(",");
 		for(int i=0;i<uol.length;i++){
 			LinkBean lb=new LinkBean();
 			lb.setLinkId(Long.parseLong(uol[i]));
@@ -160,7 +160,7 @@ public class OperateServiceImpl implements OperateService {
 			links.add(lb);
 		}
 		
-		String[] sol=scene.getSceneOneloopLink().split(",");
+		String[] sol="".equals(scene.getSceneOneloopLink().trim())?new String[]{}: scene.getSceneOneloopLink().split(",");
 		for(int h=0;h<sol.length;h++){
 			Long id=Long.parseLong(sol[h]);
 			LinkBean lb=links.stream().filter(
@@ -174,18 +174,21 @@ public class OperateServiceImpl implements OperateService {
 			lb.getLinkScope().add(LinkScope.SCENE_ONELOOP);
 		}
 		
-		String[] pnl=scene.getParamNonrepeatLink().split(",");
+		String[] pnl="".equals(scene.getParamNonrepeatLink().trim())?new String[]{}: scene.getParamNonrepeatLink().split(",");
 		for(int g=0;g<pnl.length;g++){
 			Long id=Long.parseLong(pnl[g]);
-			LinkBean lb=links.stream().filter(
+			Optional<LinkBean> lb=links.stream().filter(
 						(LinkBean b) -> b.getLinkId().equals(id)
-					).findFirst().get();
-			if(lb==null){
-				lb=new LinkBean();
-				lb.setLinkId(id);
-				links.add(lb);
+					).findFirst();
+			LinkBean b;
+			if(lb.isPresent()){
+				b=new LinkBean();
+				b.setLinkId(id);
+				links.add(b);
+			}else{
+				b=lb.get();
 			}
-			lb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
+			b.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
 		}
 
 		// 4、返回
@@ -311,6 +314,11 @@ public class OperateServiceImpl implements OperateService {
 	}
 
 	   public static void main(String[] args){
+
+			String[] uol="6".split(",");
+			for(int i=0;i<uol.length;i++){
+				System.out.println("--"+uol[i]);
+			}
 //		   ActionPerformanceBO ap=new ActionPerformanceBO();
 //		   List<Link> listlink=new ArrayList();
 //		   Link l=new Link();
