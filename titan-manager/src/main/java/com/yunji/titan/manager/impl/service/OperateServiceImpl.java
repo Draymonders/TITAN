@@ -165,30 +165,17 @@ public class OperateServiceImpl implements OperateService {
 			Long id=Long.parseLong(sol[h]);
 			LinkBean lb=links.stream().filter(
 						(LinkBean b) -> b.getLinkId().equals(id)
-					).findFirst().get();
-			if(lb==null){
-				lb=new LinkBean();
-				lb.setLinkId(id);
-				links.add(lb);
-			}
+					).findFirst().orElseGet(() -> this.newbean(id,links));
 			lb.getLinkScope().add(LinkScope.SCENE_ONELOOP);
 		}
 		
 		String[] pnl="".equals(scene.getParamNonrepeatLink().trim())?new String[]{}: scene.getParamNonrepeatLink().split(",");
 		for(int g=0;g<pnl.length;g++){
 			Long id=Long.parseLong(pnl[g]);
-			Optional<LinkBean> lb=links.stream().filter(
+			LinkBean lb = links.stream().filter(
 						(LinkBean b) -> b.getLinkId().equals(id)
-					).findFirst();
-			LinkBean b;
-			if(lb.isPresent()){
-				b=lb.get();
-			}else{
-				b=new LinkBean();
-				b.setLinkId(id);
-				links.add(b);
-			}
-			b.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
+					).findFirst().orElseGet(() -> this.newbean(id,links));
+			lb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
 		}
 
 		// 4、返回
@@ -218,6 +205,14 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setIdUrls(idUrls);
 
 		return actionPerformanceBO;
+	}
+	
+	private LinkBean newbean(Long id ,List<LinkBean> links ){
+		LinkBean b;
+		b=new LinkBean();
+		b.setLinkId(id);
+		links.add(b);
+		return b;
 	}
 
 	@Override
