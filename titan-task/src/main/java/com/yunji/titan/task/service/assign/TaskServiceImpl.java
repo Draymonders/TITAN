@@ -26,12 +26,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
+
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
 import org.apache.poi.hssf.usermodel.HSSFSheet;
@@ -45,6 +48,7 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+
 import com.alibaba.fastjson.JSON;
 import com.yunji.titan.agent.state.AgentStateContext;
 import com.yunji.titan.agent.state.BusynessState;
@@ -61,12 +65,15 @@ import com.yunji.titan.task.watch.WatchAgents;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
 import com.yunji.titan.utils.ErrorCode;
+import com.yunji.titan.utils.LinkBean;
+import com.yunji.titan.utils.LinkScope;
 import com.yunji.titan.utils.NodePath;
 import com.yunji.titan.utils.ProtocolType;
 import com.yunji.titan.utils.RequestType;
 import com.yunji.titan.utils.TaskIssuedBean;
 import com.yunji.titan.utils.ZookeeperConnManager;
 import com.yunji.titan.utils.ftp.FtpUtils;
+
 import redis.clients.jedis.JedisCluster;
 
 /**
@@ -141,7 +148,7 @@ public class TaskServiceImpl implements TaskService {
 		Map<String, AgentTaskBean> taskMap = missionSchedule(freeAgents, taskIssuedBean.getAgentSize(),
 				taskIssuedBean.getUrls(), downLoadFiles(taskIssuedBean.getParams()), taskIssuedBean.getRequestTypes(),
 				taskIssuedBean.getProtocolTypes(), taskIssuedBean.getContentTypes(), taskIssuedBean.getCharsets(),
-				taskIssuedBean.getVariables(),taskIssuedBean.getSuccessExpression());
+				taskIssuedBean.getVariables(),taskIssuedBean.getSuccessExpression(),taskIssuedBean);
 		/* 为每一个场景的压测任务分配一个唯一的任务ID */
 		String taskId = UUID.randomUUID().toString();
 		/* 通过并行流方式加速任务下发,加速压测预热过程 */
@@ -164,6 +171,7 @@ public class TaskServiceImpl implements TaskService {
 			}
 			taskBean.setContainLinkIds(taskIssuedBean.getContainLinkIds());
 			taskBean.setIdUrls(taskIssuedBean.getIdUrls());
+			taskBean.setLinks(taskIssuedBean.getLinks());
 			String taskInfo = JSON.toJSONString(taskBean);
 			log.info("znode-->" + znode + "的任务信息-->" + taskInfo);
 			/* 将agent对应的任务信息上传至ftp等待任务下发 */
@@ -285,7 +293,8 @@ public class TaskServiceImpl implements TaskService {
 	private Map<String, AgentTaskBean> missionSchedule(List<String> znodes, int agentSize, List<String> urls,
 			Map<String, List<String>> params, Map<String, RequestType> requestTypes,
 			Map<String, ProtocolType> protocolTypes, Map<String, ContentType> contentTypes,
-			Map<String, String> charsets,Map<String, List<String>> variables,Map<String, String> successExpression) {
+			Map<String, String> charsets,Map<String, List<String>> variables,Map<String, String> successExpression,
+			TaskIssuedBean taskIssuedBean) {
 		Map<String, AgentTaskBean> taskMap = new ConcurrentHashMap<String, AgentTaskBean>(16);
 		/* 定义目标agent分配动态参数的开始索引 */
 		Map<String, Integer> startIndex = new ConcurrentHashMap<String, Integer>(16);
@@ -317,6 +326,13 @@ public class TaskServiceImpl implements TaskService {
 							startIndex.put(url, endIndex.get(url));
 							endIndex.put(url, endIndex.get(url) + agentParamsize);
 						} else {
+							Long linkId=Long.parseLong( getLinkId(url,taskIssuedBean.getIdUrls()));
+							LinkBean lb=taskIssuedBean.getLinks().stream().filter(
+									(LinkBean b) -> b.getLinkId().equals(linkId)
+									).findFirst().get();
+							if(lb.contain(LinkScope.PARAM_NONREPEAT)){
+								throw new ResourceException("请求参数不足,url="+url, ErrorCode.REQUEST_PARAM_lACK);
+							}
 							taskBean.getParams().put(url, param);
 						}
 					}
@@ -333,6 +349,14 @@ public class TaskServiceImpl implements TaskService {
 			taskMap.put(znodes.get(i), taskBean);
 		}
 		return taskMap;
+	}
+	private String getLinkId(String url,Map<String,String> map){
+		for(Entry<String, String> e:map.entrySet()){
+			if(e.getValue().equals(url)){
+				return e.getKey();
+			}
+		}
+		return "";
 	}
 
 	@Override

@@ -52,6 +52,7 @@ public class TaskIssuedBean implements Serializable{
 	private TimeUnit timeUnit;
 	private String containLinkIds;
 	private Map<String, String> idUrls;
+	private List<LinkBean> links;
 
 	public String getTaskId() {
 		return taskId;
@@ -222,6 +223,14 @@ public class TaskIssuedBean implements Serializable{
 
 	public void setIdUrls(Map<String, String> idUrls) {
 		this.idUrls = idUrls;
+	}
+
+	public List<LinkBean> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<LinkBean> links) {
+		this.links = links;
 	}
 
 	@Override

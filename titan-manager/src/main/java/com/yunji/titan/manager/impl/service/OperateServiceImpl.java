@@ -28,6 +28,7 @@ import javax.annotation.Resource;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import com.yunji.titan.manager.bo.ActionPerformanceBO;
@@ -43,6 +44,8 @@ import com.yunji.titan.manager.service.SceneService;
 import com.yunji.titan.manager.utils.CommonTypeUtil;
 import com.yunji.titan.task.facade.TaskFacade;
 import com.yunji.titan.utils.ContentType;
+import com.yunji.titan.utils.LinkBean;
+import com.yunji.titan.utils.LinkScope;
 import com.yunji.titan.utils.ProtocolType;
 import com.yunji.titan.utils.RequestType;
 import com.yunji.titan.utils.TaskIssuedBean;
@@ -94,7 +97,7 @@ public class OperateServiceImpl implements OperateService {
 		long taskSize = scene.getTotalRequest();
 		int agentSize = scene.getUseAgent();
 		int expectThroughput = scene.getExpectTps();
-		String oldids = scene.getContainLinkid();
+		String oldids = scene.getLinkRelation();
 		String ids=oldids.replace("[", "").replace("]", "");
 		int hour = scene.getDurationHour();
 		int min = scene.getDurationMin();
@@ -147,6 +150,44 @@ public class OperateServiceImpl implements OperateService {
 		if (0 < continuedTime) {
 			timeUnit = TimeUnit.SECONDS;
 		}
+		List<LinkBean> links=new ArrayList();
+		
+		String[] uol=scene.getUserOneloopLink().split(",");
+		for(int i=0;i<uol.length;i++){
+			LinkBean lb=new LinkBean();
+			lb.setLinkId(Long.parseLong(uol[i]));
+			lb.getLinkScope().add(LinkScope.USER_ONELOOP);
+			links.add(lb);
+		}
+		
+		String[] sol=scene.getSceneOneloopLink().split(",");
+		for(int h=0;h<sol.length;h++){
+			Long id=Long.parseLong(sol[h]);
+			LinkBean lb=links.stream().filter(
+						(LinkBean b) -> b.getLinkId().equals(id)
+					).findFirst().get();
+			if(lb==null){
+				lb=new LinkBean();
+				lb.setLinkId(id);
+				links.add(lb);
+			}
+			lb.getLinkScope().add(LinkScope.SCENE_ONELOOP);
+		}
+		
+		String[] pnl=scene.getParamNonrepeatLink().split(",");
+		for(int g=0;g<pnl.length;g++){
+			Long id=Long.parseLong(pnl[g]);
+			LinkBean lb=links.stream().filter(
+						(LinkBean b) -> b.getLinkId().equals(id)
+					).findFirst().get();
+			if(lb==null){
+				lb=new LinkBean();
+				lb.setLinkId(id);
+				links.add(lb);
+			}
+			lb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
+		}
+
 		// 4、返回
 		ActionPerformanceBO actionPerformanceBO = new ActionPerformanceBO();
 		actionPerformanceBO.setSceneId(sceneId);
@@ -154,6 +195,8 @@ public class OperateServiceImpl implements OperateService {
 		actionPerformanceBO.setInitConcurrentUsersSize(initConcurrentUsersSize);
 		actionPerformanceBO.setConcurrentUsersSize(concurrentUsersSize);
 		actionPerformanceBO.setTaskSize(taskSize);
+		
+		actionPerformanceBO.setLinks(links);
 
 		actionPerformanceBO.setAgentSize(agentSize);
 		actionPerformanceBO.setExpectThroughput(expectThroughput);
@@ -242,6 +285,8 @@ public class OperateServiceImpl implements OperateService {
 		tb.setTimeUnit(ap.getTimeUnit());
 		tb.setContainLinkIds(ap.getContainLinkIds());
 		tb.setIdUrls(ap.getIdUrls());
+		tb.setLinks(ap.getLinks());
+		
 	}
 	
 	private static Link findLink(String id, List<Link> linkList){
@@ -265,21 +310,26 @@ public class OperateServiceImpl implements OperateService {
 		return str;
 	}
 
-//	   public static void main(String[] args){
-//		   List<Link> linkList=new ArrayList();
-//		   Link link=new Link();
-//		   link.setLinkId(1l);
-//		   linkList.add(link);
-//		   link=new Link();
-//		   link.setLinkId(2l);
-//		   linkList.add(link);
-//		   link=new Link();
-//		   link.setLinkId(3l);
-//		   linkList.add(link);
-//		   link=new Link();
-//		   link.setLinkId(2l);
-//		   linkList.add(link);
-//		   Link l=findLink("2",linkList);
-//		   l.getLinkName();
-//	   }
+	   public static void main(String[] args){
+//		   ActionPerformanceBO ap=new ActionPerformanceBO();
+//		   List<Link> listlink=new ArrayList();
+//		   Link l=new Link();
+//		   l.setCharsetType(10);
+//		   l.setLinkId(10l);
+//		   listlink.add(l);
+//		   
+//		   l=new Link();
+//		   l.setCharsetType(20);
+//		   l.setLinkId(20l);
+//		   listlink.add(l);
+//		   ap.setLinks(listlink);
+//		   
+//			List<LinkBean> links=new ArrayList();
+//			for(Link k:ap.getLinks()){
+//				LinkBean b=new LinkBean();
+//				BeanUtils.copyProperties(k, b);
+//				links.add(b);
+//			}
+//			System.out.println(links.size());
+	   }
 }

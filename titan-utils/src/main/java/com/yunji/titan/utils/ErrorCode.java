@@ -46,7 +46,8 @@ public enum ErrorCode {
 	GET_TASK_STOCK_FAIL(108,"场景状态不能满足当前操作"),
 	GET_AGENT_HOST_ADDRESS_SUCCESS(109,"获取注册中心所有的agent的hostAddress信息成功"),
 	GET_AGENT_HOST_ADDRESS_FAILS(110,"获取注册中心所有的agent的hostAddress信息失败"),
-	AGENT_TYPE_ERROR(111,"agent状态不对");
+	AGENT_TYPE_ERROR(111,"agent状态不对"),
+	REQUEST_PARAM_lACK(112,"请求的参数条数不足，请增加链路的excel参数") ;
 	
 	public int code;
 	public String errorMsg;

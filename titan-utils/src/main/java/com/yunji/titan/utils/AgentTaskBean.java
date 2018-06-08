@@ -48,6 +48,7 @@ public class AgentTaskBean {
 	private Map<String, String> successExpression = new ConcurrentHashMap<>();
 	private Map<String, List<String>> variables = new ConcurrentHashMap<>();
 	private String containLinkIds;
+	private List<LinkBean> links;
 
 	private Map<String, String> idUrls;
 
@@ -209,6 +210,14 @@ public class AgentTaskBean {
 
 	public void setIdUrls(Map<String, String> idUrls) {
 		this.idUrls = idUrls;
+	}
+
+	public List<LinkBean> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<LinkBean> links) {
+		this.links = links;
 	}
 	
 }

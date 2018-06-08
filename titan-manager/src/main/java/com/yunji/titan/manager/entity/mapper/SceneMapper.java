@@ -48,6 +48,9 @@ public class SceneMapper implements RowMapper<Scene>{
 		scene.setExpectTps(rs.getInt("expect_tps"));
 		scene.setContainLinkid(rs.getString("contain_linkid"));
 		scene.setLinkRelation(rs.getString("link_relation"));
+		scene.setUserOneloopLink(rs.getString("user_oneloop_link"));
+		scene.setSceneOneloopLink(rs.getString("scene_oneloop_link"));
+		scene.setParamNonrepeatLink(rs.getString("param_nonrepeat_link"));
 		
 		scene.setUseAgent(rs.getInt("use_agent"));
 		scene.setSceneStatus(rs.getInt("scene_status"));

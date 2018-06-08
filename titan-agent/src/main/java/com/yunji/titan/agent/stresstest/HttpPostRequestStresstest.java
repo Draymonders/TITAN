@@ -102,6 +102,7 @@ public class HttpPostRequestStresstest implements Stresstest {
 					entity = httpResponse.getEntity();
 					/* 获取压测执行结果 */
 					outParamBO = getResult(httpResponse, entity);
+					log.info("--url="+url+",param="+param+",charset="+charset+",contentType="+contentType+",reponseData="+outParamBO.getData());
 				}
 			} catch (Exception e) {
 				// ...

@@ -84,6 +84,10 @@ public class Scene {
 	 * 记录最后修改时间
 	 */
 	private Long modifyTime;
+	private String userOneloopLink;
+	private String sceneOneloopLink;
+	private String paramNonrepeatLink;
+	
 	public Long getSceneId() {
 		return sceneId;
 	}
@@ -173,6 +177,26 @@ public class Scene {
 	}
 	public void setModifyTime(Long modifyTime) {
 		this.modifyTime = modifyTime;
+	}
+	
+
+	public String getUserOneloopLink() {
+		return userOneloopLink;
+	}
+	public void setUserOneloopLink(String userOneloopLink) {
+		this.userOneloopLink = userOneloopLink;
+	}
+	public String getSceneOneloopLink() {
+		return sceneOneloopLink;
+	}
+	public void setSceneOneloopLink(String sceneOneloopLink) {
+		this.sceneOneloopLink = sceneOneloopLink;
+	}
+	public String getParamNonrepeatLink() {
+		return paramNonrepeatLink;
+	}
+	public void setParamNonrepeatLink(String paramNonrepeatLink) {
+		this.paramNonrepeatLink = paramNonrepeatLink;
 	}
 	@Override
 	public String toString() {

@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import com.yunji.titan.manager.entity.Link;
 import com.yunji.titan.utils.ContentType;
+import com.yunji.titan.utils.LinkBean;
 import com.yunji.titan.utils.ProtocolType;
 import com.yunji.titan.utils.RequestType;
 
@@ -107,8 +109,12 @@ public class ActionPerformanceBO implements Serializable {
 	private Map<String, String> successExpression = new HashMap<String, String>(16);
 	
 	private String containLinkIds;
-	
+	/**
+	 * linkId<-->url映射关系
+	 */
 	private Map<String, String> idUrls;
+	
+	private List<LinkBean> links;
 	
 	public Long getSceneId() {
 		return sceneId;
@@ -260,6 +266,14 @@ public class ActionPerformanceBO implements Serializable {
 
 	public void setIdUrls(Map<String, String> idUrls) {
 		this.idUrls = idUrls;
+	}
+
+	public List<LinkBean> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<LinkBean> links) {
+		this.links = links;
 	}
 
 	@Override

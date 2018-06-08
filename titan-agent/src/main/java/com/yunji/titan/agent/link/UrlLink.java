@@ -7,8 +7,7 @@ import java.util.Map.Entry;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
 import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
@@ -17,17 +16,23 @@ import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
+import com.yunji.titan.utils.LinkBean;
+import com.yunji.titan.utils.LinkScope;
 import com.yunji.titan.utils.RequestType;
 
 public class UrlLink  implements Link{
-	
-	private Logger logger = LoggerFactory.getLogger(UrlLink.class);
+
+	private static Logger logger = Logger.getLogger(UrlLink.class);
 	
 	private String url;
+	
+	private boolean singleLoop;
+	private boolean done=false;
+	private StressTestResult result;
 
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
-		StressTestResult result=new StressTestResult();
+		result=new StressTestResult();
 		try{
 			result.setData(this.url);
 			String outParam = null;
@@ -46,11 +51,16 @@ public class UrlLink  implements Link{
 			Map<String,String> varValue=stc.getVarValue();
 			Map<String, String> successExpression=stc.getSuccessExpression();
 			Map<String, List<String>> variables=stc.getVariables();
+			Map<String, String> idUrls=stc.getIdUrls();
 			if (taskBean.getParams().containsKey(url)) {
 				List<String> params = taskBean.getParams().get(url);
 				if (!params.isEmpty()) {
 					/* 获取压测参数索引 */
-					int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size());
+					int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size(),stc);
+					if(paramIdex==-1){
+						logger.info("-- scene oneloop,url="+this.url);
+						return result;
+					}
 					inParam = params.get(paramIdex);
 				}
 			}
@@ -67,6 +77,7 @@ public class UrlLink  implements Link{
 			Map<String,String> tmpVarValue=new HashMap<String,String>();
 			tmpVarValue.putAll(varValue);
 			tmpVarValue.putAll(stc.getLocalVarValue());
+			tmpVarValue.putAll(stc.getSceneVariableManager().mapVariableValue());
 			outParamBO = stresstest.runStresstest(url, outParam, inParam, contentTypes.get(url),
 					charsets.get(url),tmpVarValue);
 			code = outParamBO.getErrorCode();
@@ -77,30 +88,38 @@ public class UrlLink  implements Link{
 				if(!matcher.matches())
 				{
 					result.setSuccess(false); 
-					logger.info("-- request failed 1,url="+this.url);
+					logger.info("-- request failed(!matcher.matches()),url="+this.url);
 					return result;
 				}
 			}else if (Integer.parseInt(stc.getCode()) != code) {
 				/* 返回业务码不为${code}则失败 */
 				result.setSuccess(false); 
-				logger.info("-- request failed 2,url="+this.url);
+				logger.info("-- request failed(stc.getCode()) != code),url="+this.url);
 				return result;
 			}
 			outParam = outParamBO.getData();
 			Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
 
+			boolean oneLoop=this.isSceneOneLoop(stc);
 			stc.getLocalVarValue().clear();
+			Map<String,String> map=new HashMap();
 			for(Entry<String, String> entry:varTemp.entrySet()){
-				if(!entry.getKey().contains("_")){//全局变量
+				if(oneLoop){//场景所有并发用户共享的变量
+					map.put(entry.getKey(), entry.getValue());
+				}else if(!entry.getKey().contains("_")){//场景执行一次，各个链路共享的变量
 					varValue.put(entry.getKey(), entry.getValue());
 				}else{//局部变量
 					stc.getLocalVarValue().put(entry.getKey(), entry.getValue());
 				}
 			}
+			if(oneLoop){
+				stc.getSceneVariableManager().add(this.url,map);
+			}
 			result.setSuccess(true); 
 		}catch(Exception e){
+			e.printStackTrace();
 			result.setSuccess(false); 
-			logger.error(e.getMessage());
+			logger.error(e);
 		}
 		return result;
 	
@@ -122,16 +141,39 @@ public class UrlLink  implements Link{
 	 * 
 	 * @author gaoxianglong
 	 */
-	private int getParamIndex(AgentTaskBean taskBean, String url, Map<String, Integer> paramIndex, int paramSize) {
+	private int getParamIndex(AgentTaskBean taskBean, String url, Map<String, Integer> paramIndex, int paramSize,
+			StressTestContext stc) {
 		synchronized (paramIndex) {
+			
 			paramIndex.put(url, !paramIndex.containsKey(url) ? 0 : paramIndex.get(url) + 1);
 			/* 持续轮询 */
 			if (paramIndex.get(url) == paramSize) {
-				logger.debug("重新开始轮询参数");
-				paramIndex.put(url, 0);
+				if(this.isSceneOneLoop(stc)){
+					paramIndex.put(url, -1);
+				}else{
+					logger.debug("重新开始轮询参数");
+					paramIndex.put(url, 0);
+				}
 			}
 			return paramIndex.get(url);
 		}
+	}
+	private boolean isSceneOneLoop(StressTestContext stc){
+		Long linkId=Long.parseLong( getLinkId(url,stc.getIdUrls()));
+		LinkBean lb=stc.getLinks().stream().filter(
+				(LinkBean b) -> b.getLinkId().equals(linkId)
+				).findFirst().get();
+		boolean oneloop=lb.contain(LinkScope.SCENE_ONELOOP);
+		return oneloop;
+	}
+
+	private String getLinkId(String url,Map<String,String> map){
+		for(Entry<String, String> e:map.entrySet()){
+			if(e.getValue().equals(url)){
+				return e.getKey();
+			}
+		}
+		return "";
 	}
 	/**
 	 * 解析返回数据，给链路定义的变量赋值
@@ -165,4 +207,13 @@ public class UrlLink  implements Link{
 		}
 		return map;
    }
+
+	public boolean isSingleLoop() {
+		return singleLoop;
+	}
+
+	public void setSingleLoop(boolean singleLoop) {
+		this.singleLoop = singleLoop;
+	}
+   
 }

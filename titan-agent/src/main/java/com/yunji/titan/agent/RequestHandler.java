@@ -41,6 +41,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.link.Link;
 import com.yunji.titan.agent.link.LinkRelolver;
+import com.yunji.titan.agent.link.SceneVariableManager;
 import com.yunji.titan.agent.link.StressTestContext;
 import com.yunji.titan.agent.link.StressTestResult;
 import com.yunji.titan.agent.state.AgentStateContext;
@@ -196,9 +197,14 @@ public class RequestHandler {
 			log.error("--containLinkIds cann't be null");
 			return;
 		}
+		//一个url产生一个变量值map,eg:在一个agent，一个场景中的登陆使用2个账号，则这个登陆url就产生了两个变量值
+		SceneVariableManager varManager=new SceneVariableManager();
 		for (int i = 0; i < concurrentUsersSize; i++) {
 			threadPoolManager.getThreadPool().execute(() -> {
 				concurrentUser.getAndIncrement();
+
+				LinkRelolver r=new LinkRelolver();
+				//taskSize为场景执行请求的数量，即一个场景循环执行taskSize次
 				for (long j = 0; j < taskSize; j++) {
 					int code = -10000;
 					/* 如果线程收到interrupted信号则停止执行压测任务 */
@@ -208,9 +214,8 @@ public class RequestHandler {
 					}
 					/* 全链路压测时上一个接口的出参 */
 					String outParam = null;
+					//一个场景一次请求(所有链路)共享的变量值
 					Map<String,String> varValue=new HashMap<String,String>();
-
-					LinkRelolver r=new LinkRelolver();
 					r.setThreadPoolManager(this.threadPoolManager);
 					r.setIdUrls(idUrls);
 					Link link=r.relover(containLinkIds);
@@ -226,6 +231,10 @@ public class RequestHandler {
 					stc.setTaskBean(taskBean);
 					stc.setVariables(variables);
 					stc.setVarValue(varValue);
+					stc.setCharsets(charsets);
+					stc.setIdUrls(idUrls);
+					stc.setLinks(taskBean.getLinks());
+					stc.setSceneVariableManager(varManager);
 					StressTestResult result=link.execute(stc);
 					
 //					boolean result = true;

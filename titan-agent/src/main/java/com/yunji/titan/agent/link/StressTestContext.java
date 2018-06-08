@@ -7,6 +7,7 @@ import java.util.Map;
 import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
+import com.yunji.titan.utils.LinkBean;
 import com.yunji.titan.utils.RequestType;
 
 public class StressTestContext {
@@ -20,12 +21,16 @@ public class StressTestContext {
 	private Map<String, List<String>> variables;
 	private Map<String, String> successExpression;
 	private Map<String, ContentType> contentTypes;
-	//全局的变量、变量值
+	//场景多个链路执行一次时共享的变量、变量值
 	private Map<String,String> varValue;
 	//是否成功编码
 	private String code;
 	//局部的变量、变量值
 	private Map<String,String> localVarValue=new HashMap<String,String>();
+	private Map<String, String> idUrls;
+	private List<LinkBean> links;
+	//场景全局变量,场景n个用户并发,这些用户共享的变量、变量值
+	private SceneVariableManager sceneVariableManager;
 	
 	public Map<String, Integer> getParamIndex() {
 		return paramIndex;
@@ -100,6 +105,26 @@ public class StressTestContext {
 		this.localVarValue = localVarValue;
 	}
 	
+	public Map<String, String> getIdUrls() {
+		return idUrls;
+	}
+	public void setIdUrls(Map<String, String> idUrls) {
+		this.idUrls = idUrls;
+	}
+	
+	public List<LinkBean> getLinks() {
+		return links;
+	}
+	public void setLinks(List<LinkBean> links) {
+		this.links = links;
+	}
+	
+	public SceneVariableManager getSceneVariableManager() {
+		return sceneVariableManager;
+	}
+	public void setSceneVariableManager(SceneVariableManager sceneVariableManager) {
+		this.sceneVariableManager = sceneVariableManager;
+	}
 	public synchronized StressTestContext copyLocalVarValue(){
 		StressTestContext cp=new StressTestContext();
 		cp.paramIndex=this.paramIndex;
