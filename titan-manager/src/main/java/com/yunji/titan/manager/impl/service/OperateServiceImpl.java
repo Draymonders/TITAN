@@ -165,7 +165,7 @@ public class OperateServiceImpl implements OperateService {
 			Long id=Long.parseLong(sol[h]);
 			LinkBean lb=links.stream().filter(
 						(LinkBean b) -> b.getLinkId().equals(id)
-					).findFirst().orElseGet(() -> this.newbean(id,links));
+					).findFirst().orElseGet(() -> this.newLink(id,links));
 			lb.getLinkScope().add(LinkScope.SCENE_ONELOOP);
 		}
 		
@@ -174,7 +174,7 @@ public class OperateServiceImpl implements OperateService {
 			Long id=Long.parseLong(pnl[g]);
 			LinkBean lb = links.stream().filter(
 						(LinkBean b) -> b.getLinkId().equals(id)
-					).findFirst().orElseGet(() -> this.newbean(id,links));
+					).findFirst().orElseGet(() -> this.newLink(id,links));
 			lb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
 		}
 
@@ -207,9 +207,8 @@ public class OperateServiceImpl implements OperateService {
 		return actionPerformanceBO;
 	}
 	
-	private LinkBean newbean(Long id ,List<LinkBean> links ){
-		LinkBean b;
-		b=new LinkBean();
+	private LinkBean newLink(Long id ,List<LinkBean> links ){
+		LinkBean b=new LinkBean();
 		b.setLinkId(id);
 		links.add(b);
 		return b;
