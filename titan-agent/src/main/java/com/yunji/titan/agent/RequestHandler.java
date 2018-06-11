@@ -44,6 +44,7 @@ import com.yunji.titan.agent.link.LinkRelolver;
 import com.yunji.titan.agent.link.SceneVariableManager;
 import com.yunji.titan.agent.link.StressTestContext;
 import com.yunji.titan.agent.link.StressTestResult;
+import com.yunji.titan.agent.link.UrlLink;
 import com.yunji.titan.agent.state.AgentStateContext;
 import com.yunji.titan.agent.state.FreeState;
 import com.yunji.titan.agent.state.StopState;
@@ -197,6 +198,7 @@ public class RequestHandler {
 			log.error("--containLinkIds cann't be null");
 			return;
 		}
+		UrlLink.init();
 		//一个url产生一个变量值map,eg:在一个agent，一个场景中的登陆使用2个账号，则这个登陆url就产生了两个变量值
 		SceneVariableManager varManager=new SceneVariableManager();
 		for (int i = 0; i < concurrentUsersSize; i++) {

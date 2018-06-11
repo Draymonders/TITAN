@@ -15,7 +15,7 @@ public class SceneVariableManager {
 	//场景全局变量,场景n个用户并发,这些用户共享的变量、变量值
 	private Map<String,List<Map<String,String>>> sceneVarValue=new HashMap();
 
-	public void add(String url,Map<String,String> map){
+	public synchronized void add(String url,Map<String,String> map){
 		List<Map<String,String>> list=sceneVarValue.get(url);
 		if(list==null){
 			list=new ArrayList();
@@ -24,7 +24,7 @@ public class SceneVariableManager {
 		list.add(map);
 	}
 	
-	public String getVarValue(String key){
+	public synchronized String getVarValue(String key){
 		String value=null;
 		//遍历各个url产生的变量
 		for(Entry<String,List<Map<String,String>>> e:sceneVarValue.entrySet()){
@@ -47,7 +47,7 @@ public class SceneVariableManager {
 	 * 要求各个url的变量不能同名
 	 * @return
 	 */
-	public Map<String,String> mapVariableValue(){
+	public synchronized Map<String,String> mapVariableValue(){
 		Map<String,String> result=new HashMap();
 		for(Entry<String,List<Map<String,String>>> e:sceneVarValue.entrySet()){
 			//一个个url产生的变量组大小

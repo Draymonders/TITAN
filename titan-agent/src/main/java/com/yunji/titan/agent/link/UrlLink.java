@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,6 +25,7 @@ import com.yunji.titan.utils.RequestType;
 public class UrlLink  implements Link{
 
 	private static Logger logger = Logger.getLogger(UrlLink.class);
+	private static Map<String,String> oneLoopLock=new ConcurrentHashMap();
 	
 	private String url;
 	
@@ -34,6 +36,7 @@ public class UrlLink  implements Link{
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
 		result=new StressTestResult();
+		boolean oneLoop=this.isSceneOneLoop(stc);
 		try{
 			result.setData(this.url);
 			String outParam = null;
@@ -58,8 +61,11 @@ public class UrlLink  implements Link{
 				if (!params.isEmpty()) {
 					/* 获取压测参数索引 */
 					int paramIdex = getParamIndex(taskBean, url, paramIndex, params.size(),stc);
+					logger.info("--getParamIndex,url="+url+",paramIdex="+paramIdex);
 					if(paramIdex==-1){
 						logger.info("-- scene oneloop,url="+this.url);
+						waitFirstExecuteDone();
+						logger.info("-- firstExecute Done,url="+this.url);
 						return result;
 					}
 					inParam = params.get(paramIdex);
@@ -101,7 +107,6 @@ public class UrlLink  implements Link{
 			outParam = outParamBO.getData();
 			Map<String,String> varTemp=this.getVariableValue(variables, url, outParam);
 
-			boolean oneLoop=this.isSceneOneLoop(stc);
 			stc.getLocalVarValue().clear();
 			Map<String,String> map=new HashMap();
 			for(Entry<String, String> entry:varTemp.entrySet()){
@@ -114,6 +119,8 @@ public class UrlLink  implements Link{
 				}
 			}
 			if(oneLoop){
+				String data=JSONObject.toJSONString(map);
+				logger.info("--SceneVariableManager add data="+data);
 				stc.getSceneVariableManager().add(this.url,map);
 			}
 			result.setSuccess(true); 
@@ -121,9 +128,22 @@ public class UrlLink  implements Link{
 			e.printStackTrace();
 			result.setSuccess(false); 
 			logger.error(e);
+		}finally{
+			if(oneLoop){
+				oneLoopLock.put(this.url, "");
+			}
 		}
 		return result;
 	
+	}
+	private void waitFirstExecuteDone(){
+		while(!done){
+			String data=oneLoopLock.get(this.url);
+			if(data!=null){
+				done=true;
+				break;
+			}
+		}
 	}
 
 	@Override
@@ -145,8 +165,10 @@ public class UrlLink  implements Link{
 	private int getParamIndex(AgentTaskBean taskBean, String url, Map<String, Integer> paramIndex, int paramSize,
 			StressTestContext stc) {
 		synchronized (paramIndex) {
-			
-			paramIndex.put(url, !paramIndex.containsKey(url) ? 0 : paramIndex.get(url) + 1);
+			Integer index=paramIndex.get(url);
+			if (index==null || index !=-1) {
+				paramIndex.put(url, !paramIndex.containsKey(url) ? 0 : paramIndex.get(url) + 1);
+			}
 			/* 持续轮询 */
 			if (paramIndex.get(url) == paramSize) {
 				if(this.isSceneOneLoop(stc)){
@@ -216,5 +238,7 @@ public class UrlLink  implements Link{
 	public void setSingleLoop(boolean singleLoop) {
 		this.singleLoop = singleLoop;
 	}
-   
+   public static void init(){
+	   oneLoopLock.clear();
+   }
 }
