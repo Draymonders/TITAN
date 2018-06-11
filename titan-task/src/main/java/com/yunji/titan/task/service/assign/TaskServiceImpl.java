@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
@@ -295,6 +296,7 @@ public class TaskServiceImpl implements TaskService {
 			Map<String, ProtocolType> protocolTypes, Map<String, ContentType> contentTypes,
 			Map<String, String> charsets,Map<String, List<String>> variables,Map<String, String> successExpression,
 			TaskIssuedBean taskIssuedBean) {
+		log.info("--missionSchedule start"); 
 		Map<String, AgentTaskBean> taskMap = new ConcurrentHashMap<String, AgentTaskBean>(16);
 		/* 定义目标agent分配动态参数的开始索引 */
 		Map<String, Integer> startIndex = new ConcurrentHashMap<String, Integer>(16);
@@ -326,12 +328,16 @@ public class TaskServiceImpl implements TaskService {
 							startIndex.put(url, endIndex.get(url));
 							endIndex.put(url, endIndex.get(url) + agentParamsize);
 						} else {
+							log.info("--get LinkBean"); 
 							Long linkId=Long.parseLong( getLinkId(url,taskIssuedBean.getIdUrls()));
-							LinkBean lb=taskIssuedBean.getLinks().stream().filter(
+							Optional<LinkBean> lb=taskIssuedBean.getLinks().stream().filter(
 									(LinkBean b) -> b.getLinkId().equals(linkId)
-									).findFirst().get();
-							if(lb.contain(LinkScope.PARAM_NONREPEAT)){
-								throw new ResourceException("请求参数不足,url="+url, ErrorCode.REQUEST_PARAM_lACK);
+									).findFirst();
+							if(lb.isPresent()){
+								if(lb.get().contain(LinkScope.PARAM_NONREPEAT)){
+									log.info("--LinkScope.PARAM_NONREPEAT"); 
+									throw new ResourceException("请求参数不足,url="+url, ErrorCode.REQUEST_PARAM_lACK);
+								}
 							}
 							taskBean.getParams().put(url, param);
 						}
@@ -348,7 +354,11 @@ public class TaskServiceImpl implements TaskService {
 			taskBean.setUrls(urls);
 			taskMap.put(znodes.get(i), taskBean);
 		}
+		log.info("--missionSchedule end"); 
 		return taskMap;
+	}
+	private void check(){
+		
 	}
 	private String getLinkId(String url,Map<String,String> map){
 		for(Entry<String, String> e:map.entrySet()){
@@ -446,4 +456,22 @@ public class TaskServiceImpl implements TaskService {
 		}
 		return list;
 	}
+
+//	public static void main(String[] args) {
+//
+//		List<LinkBean> links=new ArrayList();
+//		LinkBean bb=new LinkBean();
+//		bb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
+//		bb.setLinkId(1l);
+//		links.add(bb);
+//		Long linkId=1l;
+//		Optional<LinkBean> lb=links.stream().filter(
+//				(LinkBean b) -> b.getLinkId().equals(linkId)
+//				).findFirst();
+//		if(lb.isPresent()){
+//			if(lb.get().contain(LinkScope.PARAM_NONREPEAT)){
+//				System.out.println("--");;
+//			}
+//		}
+//	}
 }
