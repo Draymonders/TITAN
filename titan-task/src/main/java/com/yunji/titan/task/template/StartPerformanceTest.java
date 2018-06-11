@@ -17,6 +17,8 @@
 package com.yunji.titan.task.template;
 
 import javax.annotation.Resource;
+
+import org.apache.log4j.Logger;
 import org.springframework.stereotype.Component;
 import com.yunji.titan.task.service.assign.TaskService;
 import com.yunji.titan.utils.ErrorCode;
@@ -30,11 +32,13 @@ import com.yunji.titan.utils.TaskIssuedBean;
  */
 @Component("startPerformanceTest")
 public class StartPerformanceTest implements ResultTemplate<Object, TaskIssuedBean> {
+	private static Logger logger=Logger.getLogger(StartPerformanceTest.class);
 	@Resource
 	private TaskService taskService;
 
 	@Override
 	public Result<Object> invoke(TaskIssuedBean taskIssuedBean) {
+		logger.info("--StartPerformanceTest.invoke");
 		taskService.startPerformanceTest(taskIssuedBean);
 		return new Result<Object>().getResult(true, ErrorCode.START_PERFORMANCE_TEST_SUCCESS);
 	}

@@ -18,6 +18,8 @@ package com.yunji.titan.task.facade;
 
 import javax.annotation.Resource;
 
+import org.apache.log4j.Logger;
+
 import com.yunji.titan.task.template.GetAgentsHostAddress;
 import com.yunji.titan.task.template.PullTask;
 import com.yunji.titan.task.template.StartPerformanceTest;
@@ -31,6 +33,7 @@ import com.yunji.titan.utils.TaskIssuedBean;
  * @author gaoxianglong
  */
 public class TaskFacadeImpl implements TaskFacade {
+	private static Logger logger=Logger.getLogger(TaskFacadeImpl.class);
 	@Resource(name = "startPerformanceTest")
 	private StartPerformanceTest startPerformanceTest;
 
@@ -45,6 +48,7 @@ public class TaskFacadeImpl implements TaskFacade {
 
 	@Override
 	public Result<?> startPerformanceTest(TaskIssuedBean taskIssuedBean) {
+		logger.info("--startPerformanceTest");
 		return startPerformanceTest.getResult(taskIssuedBean);
 	}
 

@@ -47,6 +47,7 @@ public interface ResultTemplate<T, E> {
 	default Result<T> getResult(E param) {
 		Result<T> result = new Result<>();
 		try {
+			log.info("--invoke");
 			result = invoke(param);
 		} catch (ResourceException e) {
 			result.getResult(false, e.getErrorCode());

@@ -28,6 +28,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.manager.bo.ActionPerformanceBO;
 import com.yunji.titan.manager.bo.OperateBO;
 import com.yunji.titan.manager.common.Groups;
@@ -41,6 +42,7 @@ import com.yunji.titan.manager.service.SceneService;
 import com.yunji.titan.manager.utils.ResultUtil;
 import com.yunji.titan.manager.utils.ValidatorUtil;
 import com.yunji.titan.task.facade.TaskFacade;
+import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ErrorCode;
 import com.yunji.titan.utils.TaskIssuedBean;
 
@@ -123,6 +125,9 @@ public class OperateController {
 			}
 			TaskIssuedBean taskIssuedBean = new TaskIssuedBean();
 			operateService.copyBeanProperties(ap, taskIssuedBean);
+
+			String info = JSONObject.toJSONString(taskIssuedBean);
+			logger.info("--taskIssuedBean="+info);
 			operateResult = taskFacade.startPerformanceTest(taskIssuedBean);
 		}else if(OperateTypeConstant.STOP == operateBO.getOperateType()){
 			operateResult = taskFacade.stopPerformanceTest(operateBO.getSceneId().intValue());
