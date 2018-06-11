@@ -25,7 +25,7 @@ public class LinkBean {
 	 */
 	private Long linkId;
 //	private String url;
-	private List<String> linkScope=new ArrayList();
+	private List<String> linkScope = new ArrayList<String>();
 	public Long getLinkId() {
 		return linkId;
 	}
