@@ -16,10 +16,15 @@
  */
 package com.yunji.titan.utils;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class LinkBean {
+public class LinkBean  implements Serializable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 4072325600188841067L;
 	/**
 	 * 主键自增ID
 	 */
