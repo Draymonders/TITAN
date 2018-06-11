@@ -16,6 +16,7 @@
  */
 package com.yunji.titan.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class LinkBean {
@@ -24,7 +25,7 @@ public class LinkBean {
 	 */
 	private Long linkId;
 //	private String url;
-	private List<String> linkScope;
+	private List<String> linkScope = new ArrayList<String>();
 	public Long getLinkId() {
 		return linkId;
 	}

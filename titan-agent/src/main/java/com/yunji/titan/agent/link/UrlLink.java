@@ -163,7 +163,7 @@ public class UrlLink  implements Link{
 		Long linkId=Long.parseLong( getLinkId(url,stc.getIdUrls()));
 		LinkBean lb=stc.getLinks().stream().filter(
 				(LinkBean b) -> b.getLinkId().equals(linkId)
-				).findFirst().get();
+				).findFirst().orElse(new LinkBean());
 		boolean oneloop=lb.contain(LinkScope.SCENE_ONELOOP);
 		return oneloop;
 	}
