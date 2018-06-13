@@ -17,6 +17,7 @@
 package com.yunji.titan.agent;
 
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,7 @@ import org.springframework.util.StringUtils;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yunji.titan.agent.collector.DataCollector;
 import com.yunji.titan.agent.link.Link;
 import com.yunji.titan.agent.link.LinkRelolver;
 import com.yunji.titan.agent.link.SceneVariableManager;
@@ -147,12 +149,15 @@ public class RequestHandler {
 			checkInterrupted.start();
 		}
 		log.debug("agent准备工作已完成");
+
+		UrlLink.init();
+		List<Link> roots=new ArrayList();
 		long startTime = System.currentTimeMillis();
 		if (0 < initConcurrentUsersSize) {
 			/* 准备开始预热 */
 			runStresstest(initConcurrentUsersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
 					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds(),
-					taskBean.getIdUrls());
+					taskBean.getIdUrls(),roots);
 			log.info("起步量级的预热任务(起步量级-->" + initConcurrentUsersSize + ",每个并发用户分配的任务数-->" + taskSize
 					+ ")已经完成,开始准备过渡到正常流量");
 		}
@@ -160,10 +165,15 @@ public class RequestHandler {
 		if (remConcurrentusersSize > 0) {
 			runStresstest(remConcurrentusersSize, taskSize, urls, requestTypes, taskBean, paramIndex, httpSuccessNum,
 					serviceSuccessNum, latch, contentTypes, charsets,variables,successExpression,taskBean.getContainLinkIds(),
-					taskBean.getIdUrls());
+					taskBean.getIdUrls(),roots);
 		}
 		try {
 			latch.await();
+			for(Link link:roots){
+				link.collectData();
+			}
+			log.info("collectData="+JSONObject.toJSONString(DataCollector.getData()));
+			DataCollector.clear();
 			long endTime = System.currentTimeMillis();
 			String result = ResultStatistics.result(startTime, endTime, httpSuccessNum.get(), serviceSuccessNum.get(),
 					taskBean);
@@ -193,12 +203,12 @@ public class RequestHandler {
 			final Map<String, Integer> paramIndex, final AtomicInteger httpSuccessNum,
 			final AtomicInteger serviceSuccessNum, final CountDownLatch latch,
 			final Map<String, ContentType> contentTypes, final Map<String, String> charsets,final Map<String, List<String>> variables,
-			final Map<String, String> successExpression,String containLinkIds,final Map<String, String> idUrls) {
+			final Map<String, String> successExpression,String containLinkIds,final Map<String, String> idUrls,
+			List<Link> roots) {
 		if(containLinkIds==null || "".equals(containLinkIds)){
 			log.error("--containLinkIds cann't be null");
 			return;
 		}
-		UrlLink.init();
 		//一个url产生一个变量值map,eg:在一个agent，一个场景中的登陆使用2个账号，则这个登陆url就产生了两个变量值
 		SceneVariableManager varManager=new SceneVariableManager();
 		for (int i = 0; i < concurrentUsersSize; i++) {
@@ -238,7 +248,7 @@ public class RequestHandler {
 					stc.setLinks(taskBean.getLinks());
 					stc.setSceneVariableManager(varManager);
 					StressTestResult result=link.execute(stc);
-					
+					roots.add(link);
 //					boolean result = true;
 					/* 检测一次链路的压测结果 */
 					if (result.isSuccess()) {

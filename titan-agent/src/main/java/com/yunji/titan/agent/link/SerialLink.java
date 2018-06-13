@@ -31,5 +31,12 @@ public class SerialLink  implements Link{
 		links.add(link);
 	}
 
+	@Override
+	public void collectData() {
+		for(Link link :links){
+			link.collectData();
+		}
+	}
+
 
 }

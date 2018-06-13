@@ -312,8 +312,9 @@ public class TaskServiceImpl implements TaskService {
 					if (null != param && (!param.isEmpty())) {
 						if (param.size() >= agentSize) {
 							/* 每一个agent预计分配的动态参数数量 */
-							int agentParamsize = 0 == (param.size() % agentSize) ? param.size() / agentSize
-									: param.size() / agentSize + 1;
+							int agentParamsize = param.size() / agentSize;
+//							int agentParamsize = 0 == (param.size() % agentSize) ? param.size() / agentSize
+//									: param.size() / agentSize + 1;
 							/* 初始化索引 */
 							if (!startIndex.containsKey(url)) {
 								startIndex.put(url, 0);
@@ -457,21 +458,22 @@ public class TaskServiceImpl implements TaskService {
 		return list;
 	}
 
-//	public static void main(String[] args) {
-//
-//		List<LinkBean> links=new ArrayList();
-//		LinkBean bb=new LinkBean();
-//		bb.getLinkScope().add(LinkScope.PARAM_NONREPEAT);
-//		bb.setLinkId(1l);
-//		links.add(bb);
-//		Long linkId=1l;
-//		Optional<LinkBean> lb=links.stream().filter(
-//				(LinkBean b) -> b.getLinkId().equals(linkId)
-//				).findFirst();
-//		if(lb.isPresent()){
-//			if(lb.get().contain(LinkScope.PARAM_NONREPEAT)){
-//				System.out.println("--");;
-//			}
-//		}
-//	}
+	public static void main(String[] args) {
+		System.out.println(System.currentTimeMillis());
+//		List<String> param = new ArrayList();
+//		param.add("1");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		param.add("2");
+//		int agentSize=3;
+////		int i1=param.size() / agentSize;
+////		int i2=param.size() / agentSize - 1;
+//		int agentParamsize = param.size() / agentSize;
+//		System.out.println("--"+agentParamsize);
+	}
 }

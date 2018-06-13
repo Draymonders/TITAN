@@ -1,5 +1,6 @@
 package com.yunji.titan.agent.link;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -15,6 +16,8 @@ import org.springframework.util.StringUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.bean.bo.OutParamBO;
+import com.yunji.titan.agent.collector.DataCollector;
+import com.yunji.titan.agent.collector.RequestResultData;
 import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
@@ -26,7 +29,7 @@ public class UrlLink  implements Link{
 
 	private static Logger logger = Logger.getLogger(UrlLink.class);
 	private static Map<String,String> oneLoopLock=new ConcurrentHashMap();
-	
+	private List<RequestResultData> datas=new ArrayList();
 	private String url;
 	
 	private boolean singleLoop;
@@ -36,6 +39,8 @@ public class UrlLink  implements Link{
 	@Override
 	public StressTestResult execute(StressTestContext stc) {
 		result=new StressTestResult();
+		RequestResultData rrData=new RequestResultData();
+		rrData.setStartTime(System.currentTimeMillis());
 		boolean oneLoop=this.isSceneOneLoop(stc);
 		try{
 			result.setData(this.url);
@@ -94,6 +99,8 @@ public class UrlLink  implements Link{
 				Matcher matcher = pattern.matcher(outParamBO.getData());
 				if(!matcher.matches())
 				{
+					rrData.setSuccess(false);
+					rrData.setErrorMessage(outParamBO.getData());
 					result.setSuccess(false); 
 					logger.info("-- request failed(!matcher.matches()),url="+this.url+" | param:"+outParam+" | inParam:"+inParam+" | tmpVarValue:"+tmpVarValue);
 					return result;
@@ -124,14 +131,19 @@ public class UrlLink  implements Link{
 				stc.getSceneVariableManager().add(this.url,map);
 			}
 			result.setSuccess(true); 
+			rrData.setSuccess(true);
 		}catch(Exception e){
 			e.printStackTrace();
 			result.setSuccess(false); 
+			rrData.setSuccess(false);
+			rrData.setErrorMessage(e.getMessage());
 			logger.error(e);
 		}finally{
 			if(oneLoop){
 				oneLoopLock.put(this.url, "");
 			}
+			rrData.setStopTime(System.currentTimeMillis());
+			datas.add(rrData);
 		}
 		return result;
 	
@@ -240,5 +252,9 @@ public class UrlLink  implements Link{
 	}
    public static void init(){
 	   oneLoopLock.clear();
+   }
+   @Override
+   public void collectData() {
+	   	DataCollector.add(this.url, this.datas);
    }
 }

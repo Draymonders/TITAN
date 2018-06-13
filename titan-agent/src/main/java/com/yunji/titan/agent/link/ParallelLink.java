@@ -64,4 +64,11 @@ public class ParallelLink implements Link{
 		this.threadPoolManager = threadPoolManager;
 	}
 
+	@Override
+	public void collectData() {
+		for(Link link :links){
+			link.collectData();
+		}
+	}
+
 }
