@@ -239,4 +239,14 @@ public class LinkDao {
 	public int removeLinkVariableByLinkId(String ids) {
 		return jdbcTemplate.update("DELETE FROM t_link_variable WHERE link_id in (" + ids + ")");
 	}
+
+	/**
+	 * @desc 根据url查link
+	 * @param url
+	 * @return
+	 */
+	public List<Link> getLinkListByUrl(String url) {
+		final String sql = "SELECT * FROM t_link WHERE stresstest_url = ?";
+        return jdbcTemplate.query(sql,new Object[]{url},linkMapper);
+	}
 }

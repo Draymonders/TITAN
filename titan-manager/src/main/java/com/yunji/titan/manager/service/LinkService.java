@@ -16,6 +16,7 @@
  */
 package com.yunji.titan.manager.service;
 
+import java.io.File;
 import java.util.List;
 
 import com.yunji.titan.manager.bo.LinkBO;
@@ -118,7 +119,14 @@ public interface LinkService {
 	 * @throws Exception
 	 */
 	List<Link> getLinkListByIds(String ids) throws Exception;
-
+	
+	/**
+	 * @desc 根据url查询链路列表
+	 *
+	 * @param url
+	 * @return List<Link> 链路实体集合
+	 */
+	List<Link> getLinkListByUrl(String url) throws Exception;
 	/**
 	 * 根据链路ID查询链路变量定义列表
 	 * 
@@ -141,4 +149,12 @@ public interface LinkService {
 	 * @throws Exception
 	 */
 	int removeLinkAndUpdateScene(long linkId,int sceneCount) throws Exception;
+	
+	/**
+	 * 通过上传的文件添加链路
+	 * @param file
+	 * @return 成功添加的linkid
+	 * @throws Exception
+	 */
+	List<Long> addByFile(File file) throws Exception;
 }

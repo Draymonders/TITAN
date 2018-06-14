@@ -18,7 +18,9 @@ package com.yunji.titan.manager.utils;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -91,4 +93,31 @@ public class FileUtil {
 		//返回
 		return dataList;
 	}
+	
+	/**
+	 * 一次读取文件文件全部内容
+	 * @param file
+	 * @return 文件内容字符串
+	 */
+	public static String readToString(File file) {  
+        String encoding = "UTF-8";  
+        Long filelength = file.length();  
+        byte[] filecontent = new byte[filelength.intValue()];  
+        try {  
+            FileInputStream in = new FileInputStream(file);  
+            in.read(filecontent);  
+            in.close();  
+        } catch (FileNotFoundException e) {  
+            e.printStackTrace();  
+        } catch (IOException e) {  
+            e.printStackTrace();  
+        }  
+        try {  
+            return new String(filecontent, encoding);  
+        } catch (UnsupportedEncodingException e) {  
+            System.err.println("The OS does not support " + encoding);  
+            e.printStackTrace();  
+            return null;  
+        }  
+    }
 }

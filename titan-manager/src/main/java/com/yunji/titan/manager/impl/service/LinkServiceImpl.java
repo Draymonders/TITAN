@@ -16,6 +16,7 @@
  */
 package com.yunji.titan.manager.impl.service;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -24,12 +25,16 @@ import javax.annotation.Resource;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.yunji.titan.manager.bo.LinkBO;
+import com.yunji.titan.manager.common.ILinkFileResolver;
+import com.yunji.titan.manager.common.LinkFileResolverFactory;
+import com.yunji.titan.manager.common.LinkFileType;
 import com.yunji.titan.manager.dao.LinkDao;
 import com.yunji.titan.manager.dao.SceneDao;
 import com.yunji.titan.manager.entity.Link;
@@ -51,6 +56,9 @@ public class LinkServiceImpl implements LinkService{
 	
 	@Resource
 	private SceneDao sceneDao;
+	
+	@Autowired
+	private LinkFileResolverFactory linkFileResolverFactory;
 	
 	/**
      * @desc 查询链路总数量
@@ -295,6 +303,61 @@ public class LinkServiceImpl implements LinkService{
 			waitReplaceStr = waitReplaceStr.substring(0,waitReplaceStr.length()-1);
 		}
 		return waitReplaceStr;
+	}
+
+	/**
+	 * @desc 根据url查询链路列表
+	 *
+	 * @param url
+	 * @return List<Link> 链路实体集合
+	 */
+	@Override
+	public List<Link> getLinkListByUrl(String url) throws Exception{
+		return linkDao.getLinkListByUrl(url);
+	}
+	/**
+	 * 通过上传的文件添加链路
+	 * @param file
+	 * @return 成功添加的linkid
+	 * @throws Exception
+	 */
+	@Override
+	public List<Long> addByFile(File file) throws Exception {
+		List<Long> result = new ArrayList<Long>();
+		List<LinkBO> links = new ArrayList<LinkBO>();
+		
+	    if(!isFileValid(file)) throw new Exception("文件格式错误，请校验！");
+		
+		ILinkFileResolver resolver = linkFileResolverFactory.create(file);
+		
+		try {
+			links = resolver.resolve(file);
+		} catch (Exception e) {
+			throw new Exception("解析失败，请联系管理员！");
+		}
+		
+		for(LinkBO link : links){
+			List<Link> dbLink = linkDao.getLinkListByUrl(link.getStresstestUrl());
+			if (dbLink.size() > 0) {
+				linkDao.updateLink(link);
+				result.add(dbLink.get(0).getLinkId());
+			} else {
+				int linkId = addLink(link);
+				result.add(Integer.valueOf(linkId).longValue());
+			}
+		}
+		
+		return result;
+	}
+
+	private boolean isFileValid(File file) {
+		try {
+			String suffix = file.getName().substring(file.getName().lastIndexOf(".") + 1).toUpperCase();
+			LinkFileType.valueOf(suffix);
+		} catch (Exception e) {
+			return false;
+		}
+		return true;
 	}
 
 }

@@ -74,6 +74,23 @@ public enum ContentTypeEnum {
 		return null;
 	}
 	
+	public static ContentTypeEnum getContentType(String value){
+		switch (value) {
+			case "application/json":
+				return ContentTypeEnum.APP_JSON;
+			case "application/xml":
+				return ContentTypeEnum.APP_XML;
+			case "text/xml":
+				return ContentTypeEnum.TEXT_XML;
+			case "text/html":
+				return ContentTypeEnum.TEXT_HTML;
+			case "application/x-www-form-urlencoded":
+				return ContentTypeEnum.APP_FORM;
+			default:
+				return ContentTypeEnum.APP_JSON;
+		}
+	}
+	
 	private ContentTypeEnum(int code, String value) {
 		this.code = code;
 		this.value = value;
