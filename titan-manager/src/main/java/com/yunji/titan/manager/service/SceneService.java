@@ -170,4 +170,15 @@ public interface SceneService {
 	 * @throws Exception
 	 */
 	int removeSceneAndUpdateRelatedData(long sceneId) throws Exception ;
+
+	/**
+	 * 通过链路id快速增加场景
+	 *
+	 * @author daiwg
+	 *
+	 * @param linkIds 链路id
+	 * @return int 受影响的记录数
+	 * @throws Exception
+	 */
+	int fastAddScene(String sceneName, List<Long> linkIds)throws Exception ;
 }

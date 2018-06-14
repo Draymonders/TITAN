@@ -18,6 +18,7 @@ package com.yunji.titan.manager.impl.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -257,5 +258,34 @@ public class SceneServiceImpl implements SceneService{
 		//3、删监控集
 		monitorSetDao.delBySceneId(sceneId);
 		return result;
+	}
+
+	/**
+	 * 通过链路id快速增加场景
+	 *
+	 * @author daiwg
+	 *
+	 * @param linkIds 链路id
+	 * @return int 受影响的记录数
+	 * @throws Exception
+	 */
+	@Override
+	public int fastAddScene(String sceneName, List<Long> linkIds) throws Exception {
+		SceneBO sceneBO = new SceneBO();
+		sceneBO.setSceneName(sceneName);
+		sceneBO.setDurationHour(0);
+		sceneBO.setDurationMin(0);
+		sceneBO.setDurationSec(0);
+		sceneBO.setIsAutomatic(0);
+		sceneBO.setConcurrentStart(0);
+		sceneBO.setUseAgent(1);
+		sceneBO.setConcurrentUser(1);
+		sceneBO.setTotalRequest(1L);
+		sceneBO.setExpectTps(1);
+		String relation = linkIds.stream().map(l -> l.toString()).collect(Collectors.joining(","));
+		sceneBO.setLinkRelation(relation);
+		sceneBO.setContainLinkid(relation);
+		
+		return this.addScene(sceneBO);
 	}
 }

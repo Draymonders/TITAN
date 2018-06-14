@@ -14,6 +14,9 @@
 			<a class="layui-btn layui-btn-small titan-btn titan-btn-del"> 
 				<i class="layui-icon">&#xe640;</i>删除
 			</a>
+			<a class="layui-btn layui-btn-small titan-btn" id="fastadd-scene-btn">
+				<i class="layui-icon">&#xe608;</i>快速新增
+			</a> 
 		</div>
 	</div>
 	<div class="layui-row">
@@ -49,6 +52,7 @@ function sceneListPage(){
 	bindCheckboxAllClickEvent();
 	bindKeydownEvent();
 	bindDeleteEvent();
+	uploadLinkFile();
 	//1、刷新数据
 	function refreshData(pageIndex,pageSize,totalCount,filterCondition){
 		titanInitParam();//初始化
@@ -206,6 +210,27 @@ function sceneListPage(){
 				});
 			}  
 		});
+	}
+	function uploadLinkFile(){
+		var uploadInst = upload.render({
+		    elem: '#fastadd-scene-btn', //绑定元素
+		    url: '${pageContext.request.contextPath}/scene/addByFile', //上传接口
+		    accept: 'file', 
+		    /* exts:"xls" ,*/		
+		    data: {"ticket":getCookie("ticket")},
+		    size:102400,
+		    done: function(result){
+		    	if(result.success){
+		    		layer.alert( "成功 ！");
+		    		refreshData(0,titanPageSize,0);
+		    	}else{
+		    		layer.alert(result.errorCode + ":"+ result.errorMsg, {icon: 5});
+		    	}
+		    },
+		    error: function(xhr,textStatus){
+		    	 console.log('错误:' + xhr);
+		    }
+		  });
 	}
 }
 </script>

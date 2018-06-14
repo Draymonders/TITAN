@@ -16,10 +16,13 @@
  */
 package com.yunji.titan.manager.controller;
 
+import java.io.File;
+import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -31,7 +34,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.MultipartHttpServletRequest;
+import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
+import com.yunji.titan.manager.bo.FileUploadBO;
 import com.yunji.titan.manager.bo.PageRequestBO;
 import com.yunji.titan.manager.bo.Pager;
 import com.yunji.titan.manager.bo.SceneBO;
@@ -307,5 +314,44 @@ public class SceneController {
 			logger.error("强制重置所有的场景状态为原始状态异常",e);
 		}
 		return ResultUtil.fail(ErrorCode.UPDATE_DB_ERROR,result);
+	}
+	
+	/**
+	 * 通过文件快速添加
+	 * 
+	 * @param request
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping(value = "/addByFile")
+	@ResponseBody
+	public ComponentResult<FileUploadBO> addByFile(HttpServletRequest request,HttpServletResponse response) {
+		ComponentResult<FileUploadBO> componentResult = new ComponentResult<FileUploadBO>();
+		CommonsMultipartResolver multipartResolver = new CommonsMultipartResolver(request.getSession().getServletContext());
+		if (multipartResolver.isMultipart(request)) {
+			MultipartHttpServletRequest multiRequest = (MultipartHttpServletRequest) request;
+			Iterator<String> iterator = multiRequest.getFileNames();
+			while (iterator.hasNext()) {
+				MultipartFile file = multiRequest.getFile(iterator.next().toString());
+				if (null != file) {
+					try {
+						File f = File.createTempFile(file.getOriginalFilename().split("\\.")[0],"." + file.getOriginalFilename().split("\\.")[1]);
+						file.transferTo(f);
+						f.deleteOnExit();        
+						List<Long> linkIds = linkService.addByFile(f);
+						sceneService.fastAddScene(file.getOriginalFilename().split("\\.")[0], linkIds);
+						return ResultUtil.success(componentResult);
+					} catch (Exception e) {
+						logger.error("批量添加失败,errmsg:" + e.getMessage());
+					}
+				}else{
+					logger.error("文件上传,file为NULL");
+				}
+			}
+		}else{
+			logger.error("文件上传,request校验失败");
+		}
+		//3、返回
+		return ResultUtil.fail(componentResult);
 	}
 }
