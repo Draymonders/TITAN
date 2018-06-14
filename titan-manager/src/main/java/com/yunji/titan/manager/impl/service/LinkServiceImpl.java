@@ -339,6 +339,7 @@ public class LinkServiceImpl implements LinkService{
 		for(LinkBO link : links){
 			List<Link> dbLink = linkDao.getLinkListByUrl(link.getStresstestUrl());
 			if (dbLink.size() > 0) {
+				link.setLinkId(dbLink.get(0).getLinkId());
 				linkDao.updateLink(link);
 				result.add(dbLink.get(0).getLinkId());
 			} else {

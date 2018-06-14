@@ -157,7 +157,7 @@ public class LinkDao {
 	 */
 	public int updateLink(LinkBO linkBO) throws Exception{
 		String sql = "UPDATE t_link SET protocol_type = ?,stresstest_url = ?,request_type = ?,content_type = ?,charset_type = ?,testfile_path = ?,modify_time = ?,success_expression = ? WHERE link_id = ?";
-		return jdbcTemplate.update(sql,new Object[]{linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),System.currentTimeMillis(),linkBO.getSuccessExpression(),linkBO.getLinkId()});
+		return jdbcTemplate.update(sql,new Object[]{linkBO.getProtocolType(),linkBO.getStresstestUrl(),linkBO.getRequestType(),linkBO.getContentType(),linkBO.getCharsetType(),linkBO.getTestfilePath(),Long.valueOf(System.currentTimeMillis()),linkBO.getSuccessExpression(),linkBO.getLinkId()});
 	}
 
 	/**
