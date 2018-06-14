@@ -5,8 +5,13 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -21,10 +26,14 @@ import com.yunji.titan.manager.bo.LinkBO;
 import com.yunji.titan.manager.utils.FileUtil;
 import com.yunji.titan.utils.ftp.FtpUtils;
 
+/**
+ * Har解析器
+ * 
+ * @author daiwenguan
+ */
 @Service
 public class HarLinkFileResolver implements ILinkFileResolver {
 	
-
 	/**
 	 * ftp工具类
 	 */
@@ -33,6 +42,8 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 	
 	private static final Integer DEFAULT_CHARSET_TYPE = 0;
 	private static final String SUCCESS_EXPRESSION = "^.+$";
+	private static final String PARAM_STATIC_STR = "PARAM%%%{'header':'HEAD'}";
+	private static final List<String> IGNORE_HEADER = new ArrayList<String>(Arrays.asList("Host", "Content-Type","Accept-Encoding", "Connection", "Accept","User-Agent","Accept-Language","Content-Length"));
 
 	@Override
 	public List<LinkBO> resolve(File file) {
@@ -53,10 +64,25 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 			String contentTypeStr = JSON.parseObject(hl.getRequest().getPostData()).getString("mimeType").toLowerCase();
 			linkBO.setContentType(ContentTypeEnum.getContentType(contentTypeStr).getCode());
 			
-			String params = JSON.parseObject(hl.getRequest().getPostData()).getString("params");
-//			List<Map> parseArray = JSON.parseArray(params, Map.class);
-
-			String fileName = genTestFile(params);
+			//解析头
+			Map<String, String> headers = hl.getRequest().getHeaders().stream()
+										.filter(m -> !IGNORE_HEADER.contains(m.get("name")))
+										.map(m -> {
+											HashMap<String, String> tmp = new HashMap<String, String>();
+											tmp.put(m.get("name"), m.get("value"));
+											return tmp;
+											})
+										.map(Map::entrySet)
+								        .flatMap(Set::stream)
+								        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+			
+			//解析参数
+			String p = JSON.parseObject(hl.getRequest().getPostData()).getString("params");
+			String paramsFixed = JSON.parseArray(p, Map.class).stream().map(m -> m.get("name") + "=" + m.get("value")).collect(Collectors.joining("&"));
+			
+			//生成压测文件并上传
+			String fileName = genTestFile(PARAM_STATIC_STR.replace("PARAM", paramsFixed).replaceAll("HEAD", JSON.toJSONString(headers)));
+			
 			linkBO.setTestfilePath(fileName);
 			
 			result.add(linkBO);
@@ -90,6 +116,6 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 
 	public static void main(String[] args) {
 		HarLinkFileResolver harLinkFileResolver = new HarLinkFileResolver();
-		harLinkFileResolver.resolve(new File("C:\\Users\\戴文冠\\Desktop\\login.har"));
+		harLinkFileResolver.resolve(new File("C:\\Users\\戴文冠\\Desktop\\fff.har"));
 	}
 }
