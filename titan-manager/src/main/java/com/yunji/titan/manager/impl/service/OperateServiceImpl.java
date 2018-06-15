@@ -129,7 +129,9 @@ public class OperateServiceImpl implements OperateService {
 				params.put(link.getStresstestUrl(), new File(link.getTestfilePath()));
 			}
 			idUrls.put(cids[i], link.getStresstestUrl());
-			urls.add(link.getStresstestUrl());
+			if(!urls.contains(link.getStresstestUrl())){
+				urls.add(link.getStresstestUrl());
+			}
 		}
 		// 4、查询链路变量定义信息
 		List<LinkVariable> linkVarList = linkService.getLinkVariableListByIds(ids);
