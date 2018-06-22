@@ -34,6 +34,7 @@
 	<bean id="rocketMQDataSource" class="com.yunji.titan.utils.config.RocketMqDataSource"
 		init-method="initProducer">
 		<property name="rocketTopic" value="${rocket_topic}" />
+		<property name="rocketPerformanceTopic" value="${rocket_performance_topic}" />
 		<property name="namesrvAddr" value="${namesrvAddr}" />
 	</bean>
 </beans>

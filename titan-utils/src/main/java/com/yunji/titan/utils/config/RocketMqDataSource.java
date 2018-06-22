@@ -31,6 +31,7 @@ import com.alibaba.rocketmq.common.protocol.heartbeat.MessageModel;
  */
 public class RocketMqDataSource {
 	private String rocketTopic;
+	private String rocketPerformanceTopic;
 	private String namesrvAddr;
 	private DefaultMqFactory defaultMQFactory;
 	private DefaultMQProducer producer;
@@ -43,6 +44,14 @@ public class RocketMqDataSource {
 
 	public void setRocketTopic(String rocketTopic) {
 		this.rocketTopic = rocketTopic;
+	}
+
+	public String getRocketPerformanceTopic() {
+		return rocketPerformanceTopic;
+	}
+
+	public void setRocketPerformanceTopic(String rocketPerformanceTopic) {
+		this.rocketPerformanceTopic = rocketPerformanceTopic;
 	}
 
 	public String getNamesrvAddr() {

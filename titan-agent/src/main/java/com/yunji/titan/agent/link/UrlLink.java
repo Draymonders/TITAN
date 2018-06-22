@@ -17,12 +17,12 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yunji.titan.agent.bean.bo.OutParamBO;
 import com.yunji.titan.agent.collector.DataCollector;
-import com.yunji.titan.agent.collector.RequestResultData;
 import com.yunji.titan.agent.stresstest.Stresstest;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
 import com.yunji.titan.utils.LinkBean;
 import com.yunji.titan.utils.LinkScope;
+import com.yunji.titan.utils.RequestResultData;
 import com.yunji.titan.utils.RequestType;
 
 public class UrlLink  implements Link{

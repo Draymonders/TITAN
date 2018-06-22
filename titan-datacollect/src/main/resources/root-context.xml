@@ -22,6 +22,11 @@
 		<property name="rocketTopic" value="${rocket_topic_2}" />
 		<property name="namesrvAddr" value="${namesrvAddr}" />
 	</bean>
+	<bean id="performanceIndicator" class="com.yunji.titan.utils.config.RocketMqDataSource"
+		init-method="initConsumer">
+		<property name="rocketPerformanceTopic" value="${rocket_performance_topic}" />
+		<property name="namesrvAddr" value="${namesrvAddr}" />
+	</bean>
 
 	<bean id="threadPoolManager" class="com.yunji.titan.utils.ThreadPoolManager"
 		init-method="init">

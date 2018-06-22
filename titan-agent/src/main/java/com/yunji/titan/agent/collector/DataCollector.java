@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import com.yunji.titan.utils.RequestResultData;
+
 public class DataCollector {
 	
 	private static Map<String,List<RequestResultData>> datas=new ConcurrentHashMap(); 

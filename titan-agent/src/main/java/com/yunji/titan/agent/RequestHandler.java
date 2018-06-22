@@ -57,6 +57,7 @@ import com.yunji.titan.agent.utils.ResultStatistics;
 import com.yunji.titan.agent.watch.registry.RegisterAgent;
 import com.yunji.titan.utils.AgentTaskBean;
 import com.yunji.titan.utils.ContentType;
+import com.yunji.titan.utils.PerformanceDataBean;
 import com.yunji.titan.utils.RequestType;
 import com.yunji.titan.utils.ThreadPoolManager;
 import com.yunji.titan.utils.ZookeeperConnManager;
@@ -172,7 +173,17 @@ public class RequestHandler {
 			for(Link link:roots){
 				link.collectData();
 			}
-			log.info("collectData="+JSONObject.toJSONString(DataCollector.getData()));
+			PerformanceDataBean performanceDataBean=new PerformanceDataBean();
+			performanceDataBean.setTaskId(taskBean.getTaskId());
+			performanceDataBean.setSceneId(taskBean.getSenceId());
+			performanceDataBean.setAgentSize(taskBean.getAgentSize());
+			performanceDataBean.setRequestDatas(DataCollector.getData());
+			String performanceMsg=JSONObject.toJSONString(performanceDataBean);
+			log.info("collectData="+performanceMsg);
+
+			if (!StringUtils.isEmpty(performanceMsg)) {
+				msgProvider.sendPerformanceMsg(performanceMsg);
+			}
 			DataCollector.clear();
 			long endTime = System.currentTimeMillis();
 			String result = ResultStatistics.result(startTime, endTime, httpSuccessNum.get(), serviceSuccessNum.get(),

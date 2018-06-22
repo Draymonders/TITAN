@@ -16,10 +16,16 @@
 package com.yunji.titan.datacollect.utils;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.yunji.titan.datacollect.bean.po.PerformanceDetailPO;
+import com.yunji.titan.datacollect.bean.po.PerformancePO;
 import com.yunji.titan.datacollect.bean.po.ReportPO;
+import com.yunji.titan.utils.RequestResultData;
 import com.yunji.titan.utils.ResultBean;
 
 /**
@@ -84,4 +90,55 @@ public class ResultStatistics {
 		}
 		return reportEntity;
 	}
+	public static void result(PerformancePO performancePO,List<PerformanceDetailPO> details,
+			Map<String, List<RequestResultData>> datas) {
+		long min=calMin(datas);
+		for(Entry<String, List<RequestResultData>> entry:datas.entrySet()){
+			String url=entry.getKey();
+			List<RequestResultData> list=entry.getValue();
+			for(RequestResultData r:list){
+				PerformanceDetailPO d=new PerformanceDetailPO();
+				d.setUrl(url);
+				d.setMessage(r.getErrorMessage());
+				d.setPerformanceId(performancePO.getId());
+				d.setStart(r.getStartTime()-min);
+				d.setStop(r.getStopTime()-min);
+				d.setSuccess(r.isSuccess());
+				int x_time=(int)(r.getStartTime()-min)/1000;
+				d.setX_time(x_time);
+				details.add(d);
+			}
+		}
+	}
+	
+	private static long calMin(Map<String, List<RequestResultData>> datas){
+		long min=999999999999999999l;
+		for(Entry<String, List<RequestResultData>> entry:datas.entrySet()){
+			String url=entry.getKey();
+			List<RequestResultData> list=entry.getValue();
+			for(RequestResultData r:list){
+				if(r.getStartTime()<min){
+					min=r.getStartTime();
+				}
+			}
+		}
+		return min;
+	}
+
+	public static void main(String[] args) {
+		long b1=20000;
+		long b2=20500;
+		long b3=21500;
+		long b4=21700;
+		long b5=22700;
+		long r=(b2-b1)/1000;
+		System.out.println(r);
+		r=(b3-b1)/1000;
+		System.out.println(r);
+		r=(b4-b1)/1000;
+		System.out.println(r);
+		r=(b5-b1)/1000;
+		System.out.println(r);
+	}
+
 }

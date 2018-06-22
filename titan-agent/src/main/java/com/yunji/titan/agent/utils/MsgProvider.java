@@ -54,4 +54,23 @@ public class MsgProvider {
 			log.error("error", e);
 		}
 	}
+
+	/**
+	 * 将压测性能相关数据写入消息队列
+	 * 
+	 * @author gaoxianglong
+	 */
+	public void sendPerformanceMsg(String result) {
+		if (StringUtils.isEmpty(result)) {
+			return;
+		}
+		try {
+			String msgId = rocketMQDataSource.getProducer()
+					.send(new Message(rocketMQDataSource.getRocketPerformanceTopic(), "*", "uploadPerformanceKey", result.getBytes()))
+					.getMsgId();
+			log.info(msgId);
+		} catch (Exception e) {
+			log.error("error", e);
+		}
+	}
 }
