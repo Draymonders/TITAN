@@ -43,7 +43,9 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 	private static final Integer DEFAULT_CHARSET_TYPE = 0;
 	private static final String SUCCESS_EXPRESSION = "^.+$";
 	private static final String PARAM_STATIC_STR = "PARAM%%%{'header':'HEAD'}";
-	private static final List<String> IGNORE_HEADER = new ArrayList<String>(Arrays.asList("Host", "Content-Type","Accept-Encoding", "Connection", "Accept","User-Agent","Accept-Language","Content-Length"));
+	private static final List<String> IGNORE_HEADER = new ArrayList<String>(Arrays.asList("Host", "Content-Type","Accept-Encoding",
+			                                         "Connection", "Accept","User-Agent","Accept-Language","Content-Length",
+			                                         "Referer"));
 
 	@Override
 	public List<LinkBO> resolve(File file) {
@@ -55,13 +57,14 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 		for(HarLink hl : harLinks){
 			LinkBO linkBO = new LinkBO();
 			String url = hl.getRequest().getUrl();
-			linkBO.setLinkName(url.substring(url.lastIndexOf("/") + 1, url.lastIndexOf("/") + 10));
+			linkBO.setLinkName(url.substring(url.lastIndexOf("/") + 1, Math.min(url.length(),url.lastIndexOf("/") + 10)));
 			linkBO.setProtocolType("http".equals(url.substring(0,url.indexOf(":")))?0:1);
 			linkBO.setStresstestUrl(url);
 			linkBO.setSuccessExpression(SUCCESS_EXPRESSION);
 			linkBO.setRequestType("GET".equals(hl.getRequest().getMethod().toUpperCase())?0:1);
 			linkBO.setCharsetType(DEFAULT_CHARSET_TYPE);
-			String contentTypeStr = JSON.parseObject(hl.getRequest().getPostData()).getString("mimeType").toLowerCase();
+			
+			String contentTypeStr =linkBO.getRequestType() == 0 ? "" : JSON.parseObject(hl.getRequest().getPostData()).getString("mimeType").toLowerCase();
 			linkBO.setContentType(ContentTypeEnum.getContentType(contentTypeStr).getCode());
 			
 			//解析头
@@ -77,8 +80,8 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 								        .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 			
 			//解析参数
-			String p = JSON.parseObject(hl.getRequest().getPostData()).getString("params");
-			String paramsFixed = JSON.parseArray(p, Map.class).stream().map(m -> m.get("name") + "=" + m.get("value")).collect(Collectors.joining("&"));
+			String p = linkBO.getRequestType() == 0 ? "" : JSON.parseObject(hl.getRequest().getPostData()).getString("params");
+			String paramsFixed = (linkBO.getRequestType() == 0 || p == null) ? "" : JSON.parseArray(p, Map.class).stream().map(m -> m.get("name") + "=" + m.get("value")).collect(Collectors.joining("&"));
 			
 			//生成压测文件并上传
 			String fileName = genTestFile(PARAM_STATIC_STR.replace("PARAM", paramsFixed).replaceAll("HEAD", JSON.toJSONString(headers)));
@@ -116,6 +119,7 @@ public class HarLinkFileResolver implements ILinkFileResolver {
 
 	public static void main(String[] args) {
 		HarLinkFileResolver harLinkFileResolver = new HarLinkFileResolver();
-		harLinkFileResolver.resolve(new File("C:\\Users\\戴文冠\\Desktop\\fff.har"));
+		List<LinkBO> resolve = harLinkFileResolver.resolve(new File("C:\\Users\\戴文冠\\Desktop\\全链路压测\\dearcc.har"));
+		System.out.println(resolve.size());
 	}
 }
