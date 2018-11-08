@@ -76,7 +76,7 @@
 							</dd>
 						</dl>
 					</li>
-					<li class="layui-nav-item"><a id="monitorListPageBtn" childpage="${pageContext.request.contextPath}/pages/monitor/monitor_list" style="cursor:pointer;">监控集管理</a></li>
+					<%-- <li class="layui-nav-item"><a id="monitorListPageBtn" childpage="${pageContext.request.contextPath}/pages/monitor/monitor_list" style="cursor:pointer;">监控集管理</a></li> --%>
 					<li class="layui-nav-item"><a id="pressureReportPageBtn" childpage="${pageContext.request.contextPath}/pages/report/report_list" style="cursor:pointer;">压测报告</a></li>
 				</ul>
 			</div>
@@ -89,8 +89,7 @@
 		<div class="layui-footer">
 			<ul>
 		  		<li>
-			  		<span>Power by云集研发中心基础架构组 Copyright &copy; 2017~2018</span>
-			  		<span><a href="https://github.com/yunjiweidian/TITAN" target="_black"><img alt="github" src="../images/github.png" style="height: 32px;"></a></span>
+			  		<span>Power by yonyou auto Copyright &copy; 2017~2018</span>
 			  		<span style="float: right;"><i class="layui-icon" title="当前登录用户">&#xe612;</i>&nbsp;&nbsp;<label id="main_username"></label></span>
 		  		</li>
 		  	</ul>

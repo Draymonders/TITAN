@@ -58,7 +58,7 @@
 		</div>
 	</div>
 	
-	<div class="layui-row">
+	<!-- <div class="layui-row">
 		<div class="layui-col-md12 layui-elem-quote">
 			<label class="titan-head-label">监控集指标</label>
 		</div>
@@ -82,7 +82,7 @@
 				<div class="layui-field-box" id="iopsChart" style="height: 320px;width: 98%;"></div>
 			</fieldset>
 		</div>
-	</div>
+	</div> -->
 </div>
 <script>
 $(function() { 
@@ -91,7 +91,7 @@ $(function() {
 function reportDetailPage(){
 	var reportItem = $mainContent.data('reportItem');
 	businessData(reportItem);
-	refreshMonitorData(reportItem);
+	/* refreshMonitorData(reportItem); */
 	
 	function businessData(item){
 		var imgPath = {0:'${pageContext.request.contextPath}/images/well.png',1:'${pageContext.request.contextPath}/images/bad.png'};

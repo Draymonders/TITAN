@@ -95,7 +95,7 @@ tr td font{
 		</div>
 	</div>
 	<!-- <hr>  -->
-	<div class="layui-row titan-content-div" style="margin-top: 70px;">
+	<!-- <div class="layui-row titan-content-div" style="margin-top: 70px;">
 		<div class="layui-row layui-elem-quote">Agent性能监控：</div>
 		<div class="layui-col-md4" >
 			<fieldset class="layui-elem-field">
@@ -118,7 +118,7 @@ tr td font{
 				</div>
 			</fieldset>	
 		</div>
-	</div>
+	</div> -->
 	 
 </div>
 <script src="${pageContext.request.contextPath}/plugins/echarts.min.js"></script>
@@ -131,7 +131,7 @@ function overviewPage(){
 	refreshData();
 	bindTabClickEvent();
 	bindOperateBtn();
-	refreshMonitorData();
+	/* refreshMonitorData(); */
 	
 	function refreshData(){
 		$.ajax({

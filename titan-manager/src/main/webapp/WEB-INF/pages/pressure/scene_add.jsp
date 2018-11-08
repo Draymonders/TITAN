@@ -458,23 +458,23 @@ function sceneAddPage(){
  			return;
 		}
 		var relationIdArr = value.split(',');
-		if(relationIdArr.length != includeLinkList.length){
+		/* if(relationIdArr.length != includeLinkList.length){
  			layer.tips('链路关系不正确', obj,{tips: [1, '#3da5e2'],time: 1000});
  			return;
- 		}
+ 		} */
 		for(var i=0;i<relationIdArr.length;i++){
  			if(!isInList(relationIdArr[i])){
  				layer.tips('链路未添加,ID:' + relationIdArr[i], obj,{tips: [1, '#3da5e2'],time: 1000});
  				return;
  			}
  		}
-		var nary = relationIdArr.sort(); 
+		/* var nary = relationIdArr.sort(); 
  		for(var i=0;i<relationIdArr.length;i++){ 
 	 		if (nary[i] == nary[i+1]){ 
 	 			layer.tips('链路ID不能重复,ID:' + nary[i], obj,{tips: [1, '#3da5e2'],time: 1000});
 	 			return;
 	 		} 
- 		} 
+ 		}  */
 		refreshLinkRelation(value);
 		$("#sceneAddPage a.titan-btn-relation").text("修改串行关系");
 		return true;
